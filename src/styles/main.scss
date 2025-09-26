@@ -1,0 +1,283 @@
+$main-bgColor: #F7F8FA;
+$text-color: #121212;
+$grey-text-color: #6B6B6B;
+$border-color: #E6E6E6;
+$red: #D43131;
+$blue: #2142FF;
+
+
+////////////////////////// Common Styles ////////////////////////
+
+.bread-crumbs {
+    a {
+        color: $grey-text-color;
+    }
+
+    p {
+        color: $text-color;
+    }
+}
+
+.title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 20px 0;
+
+    h4 {
+        font-size: 32px;
+        line-height: 40px;
+        margin: 0;
+        font-weight: 600;
+        color: $text-color;
+
+        @media (max-width: 768px) {
+            font-size: 24px;
+            line-height: 30px;
+        }
+    }
+
+    a {
+        font-size: 1rem;
+        color: $blue;
+        text-decoration: underline;
+    }
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 10px;
+        padding-left: 3px;
+
+        span {
+            color: $blue;
+        }
+    }
+
+    input {
+        border: 1px solid $border-color;
+        padding: 10px 15px;
+        color: $text-color;
+        width: 100%;
+        font-size: 14px;
+        border-radius: 5px;
+
+        &:focus {
+            outline: none;
+            border-color: $border-color;
+        }
+
+        &::placeholder {
+            color: $grey-text-color;
+        }
+
+        @media (max-width: 768px) {
+            font-size: 12px;
+            padding: 8px 15px;
+        }
+
+        &.error {
+            border-color: #F44336; // Red color for error
+        }
+    }
+}
+
+
+
+
+///////////////////////// Buttons ///////////////////
+
+.blue-cta {
+    background-color: $blue;
+    color: #FFF;
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    border-radius: 5px;
+    padding: 6px 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken($blue, 10%);
+        color: #FFF;
+    }
+
+    &:disabled {
+        background-color: #b4b4b4;
+    }
+}
+
+.white-cta {
+    background-color: #FFFF;
+    color: $blue;
+    border: 1px solid $blue;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    border-radius: 5px;
+    padding: 6px 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:disabled {
+        background-color: #b4b4b4;
+    }
+}
+
+.red-cta {
+    background-color: #FFFF;
+    color: $red;
+    border: 1px solid $border-color;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    border-radius: 5px;
+    padding: 6px 15px;
+    font-size: 14px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    svg {
+        fill: #FFF;
+    }
+
+    &:hover {
+        background-color: $red;
+        color: #FFFF;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+}
+
+
+
+/////////////////////////// Cards //////////////////////////
+
+.order-widget {
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+
+    .date {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+
+        p {
+            font-size: 14px;
+            margin: 0;
+            color: $text-color;
+        }
+    }
+
+    h6 {
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+
+        @media (max-width: 768px) {
+            font-size: 18px;
+        }
+    }
+
+    .order-details {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-top: 16px;
+
+        .detail {
+            .price {
+                font-size: 20px;
+                color: #16A34A;
+                font-weight: 600;
+            }
+
+            p {
+                font-size: 14px;
+            }
+        }
+    }
+}
+
+.product-detail-widget {
+    border-bottom: 1px dotted $border-color;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 5px 0 10px;
+
+    .product-detail {
+        span {
+            font-size: 16px;
+            color: #2142FF;
+            font-weight: 600;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+
+        p {
+            font-size: 16px;
+            color: $text-color;
+            font-weight: 500;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .price-detail {
+        span {
+            font-size: 16px;
+            color: #16A34A;
+            font-weight: 600;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+
+        p {
+            font-size: 16px;
+            color: $text-color;
+            font-weight: 400;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+    }
+
+    &:last-child {
+        border-bottom: none;
+        padding: 10px 0 0;
+    }
+}

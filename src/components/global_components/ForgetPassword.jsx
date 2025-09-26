@@ -1,0 +1,160 @@
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import GlobalForm from "./GlobalForm";
+import { Checkbox, FormControlLabel, FormHelperText } from "@mui/material";
+import styled from "@emotion/styled";
+
+const ForgetPassword = () => {
+  const [agree, setAgree] = useState(false);
+  const [checkboxError, setCheckboxError] = useState(false);
+
+  const form_json = [
+    {
+      type: "email",
+      name: "email",
+      label: "Email Address",
+      placeholder: "Enter your email",
+      fullWidth: true,
+      xs: 12,
+      validation_message: "Please enter email",
+      required: true,
+      variant: "outlined",
+    },
+    {
+      type: "password",
+      name: "password",
+      label: "Password",
+      placeholder: "Enter Password",
+      fullWidth: true,
+      show_password: true,
+      xs: 12,
+      validation_message: "Please enter password",
+      required: true,
+      variant: "outlined",
+    },
+  ];
+
+  const handleSubmit = async (values, resetForm) => {
+    if (!agree) {
+      setCheckboxError(true);
+      return;
+    }
+    try {
+      console.log("Submitted:", values);
+      resetForm();
+      setAgree(false);
+      setCheckboxError(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
+    "&.Mui-checked": {
+      color: "#2F81E9 !important",
+    },
+  }));
+  return (
+    <div className="login-container">
+      <div className="login-left">
+        <Image
+          src="/images/login-image.png"
+          alt="Login visual"
+          layout="fill"
+          objectFit="cover"
+          priority
+        />
+        <div className="overlay">
+          <Link href="/" className="back-link">
+            <button className="back-button">
+              <svg
+                width="28"
+                height="16"
+                viewBox="0 0 28 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M27 9C27.5523 9 28 8.55228 28 8C28 7.44772 27.5523 7 27 7L27 9ZM0.292894 7.29289C-0.0976295 7.68342 -0.0976296 8.31658 0.292894 8.7071L6.65685 15.0711C7.04738 15.4616 7.68054 15.4616 8.07107 15.0711C8.46159 14.6805 8.46159 14.0474 8.07107 13.6569L2.41422 8L8.07107 2.34314C8.46159 1.95262 8.46159 1.31945 8.07107 0.928931C7.68054 0.538406 7.04738 0.538406 6.65686 0.92893L0.292894 7.29289ZM27 7L1 7L1 9L27 9L27 7Z"
+                  fill="white"
+                />
+              </svg>
+              Back
+            </button>
+          </Link>
+        </div>
+        <div className="login-text">
+          <h1>Forget Password</h1>
+          {/* <p>
+          Log in to stay protected and keep your credentials secure with
+          CredCheck.
+        </p> */}
+        </div>
+      </div>
+
+      <div className="login-right">
+        <Link href="/" className="back-link-2">
+            <button className="back-button-2">
+              <svg
+                width="28"
+                height="16"
+                viewBox="0 0 28 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M27 9C27.5523 9 28 8.55228 28 8C28 7.44772 27.5523 7 27 7L27 9ZM0.292894 7.29289C-0.0976295 7.68342 -0.0976296 8.31658 0.292894 8.7071L6.65685 15.0711C7.04738 15.4616 7.68054 15.4616 8.07107 15.0711C8.46159 14.6805 8.46159 14.0474 8.07107 13.6569L2.41422 8L8.07107 2.34314C8.46159 1.95262 8.46159 1.31945 8.07107 0.928931C7.68054 0.538406 7.04738 0.538406 6.65686 0.92893L0.292894 7.29289ZM27 7L1 7L1 9L27 9L27 7Z"
+                  fill="white"
+                />
+              </svg>
+              Back
+            </button>
+          </Link>
+        <div className="login-form-container">
+          <h2>Forget Password</h2>
+          <GlobalForm
+            form_config={form_json}
+            on_Submit={handleSubmit}
+            btnClassName={"cta-btn"}
+            showSubmitBtn={false} // hide default submit
+          />
+
+          <div className="extra">
+            <FormControlLabel
+              control={
+                <CustomCheckbox
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                />
+              }
+              label={"I agree to the terms & policy "}
+            />
+            {checkboxError && (
+              <FormHelperText error>
+                Please accept the terms & policy to continue.
+              </FormHelperText>
+            )}
+          </div>
+
+          {/* Submit through this button */}
+          <div className="login-page-btn">
+            <button type="submit" onClick={handleSubmit}>
+              Log in
+            </button>
+          </div>
+
+          <div className="or-divider">OR</div>
+          <div className="after-text">
+            Don’t have an account?{" "}
+            <Link href="/signup">
+              <span className="signup-link">Sign Up</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ForgetPassword;
