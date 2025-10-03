@@ -1,7 +1,7 @@
 import React from "react";
 import GlobalForm from "./GlobalForm";
 import { Button, createTheme } from "@mui/material";
-import { contactApi } from "@/api/commonApi";
+import { contactApi } from "@/api/adminApi";
 import { toast } from "react-toastify";
 
 const form_json = [

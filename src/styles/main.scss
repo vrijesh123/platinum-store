@@ -4,6 +4,7 @@ $grey-text-color: #6B6B6B;
 $border-color: #E6E6E6;
 $red: #D43131;
 $blue: #2142FF;
+$green: #16A34A;
 
 
 ////////////////////////// Common Styles ////////////////////////
@@ -89,6 +90,92 @@ $blue: #2142FF;
     }
 }
 
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 500px;
+    background-color: #FFFF;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    padding: 10px 10px;
+    /* Space around the input and icon */
+
+    .icon-container {
+        width: 18px;
+        height: 18px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .search-input {
+        flex: 1;
+        /* Makes input take up remaining space */
+        background-color: transparent;
+        border: none;
+        color: $text-color;
+        outline: none;
+        font-size: 1rem;
+    }
+}
+
+.stats {
+    display: flex;
+    gap: 10px;
+
+    .stat {
+        border: 1px solid $border-color;
+        border-radius: 5px;
+        text-align: center;
+        flex: 1;
+        padding: 15px;
+        background-color: #FFFF;
+
+        p {
+            font-size: .9rem;
+            margin: 0 0 5px;
+        }
+
+        span {
+            color: $text-color;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+    }
+}
+
+.categories {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 10px;
+
+    .category {
+        border: 1px solid $border-color;
+        padding: 5px 10px;
+        border-radius: 5px;
+        background-color: #FFFF;
+
+        p {
+            font-size: 1rem;
+            text-wrap: nowrap;
+            color: $text-color;
+        }
+    }
+
+    .active {
+        border-color: $blue;
+        background-color: #E9ECFF;
+
+        p {
+            color: $blue;
+        }
+    }
+}
 
 
 
@@ -100,7 +187,7 @@ $blue: #2142FF;
     border: none;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
     border-radius: 5px;
-    padding: 6px 15px;
+    padding: 10px 15px;
     font-size: 1rem;
     font-weight: 500;
     display: flex;
@@ -109,6 +196,10 @@ $blue: #2142FF;
     gap: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
+
+    @media (max-width: 900px) {
+        font-size: 14px;
+    }
 
     &:hover {
         background-color: darken($blue, 10%);
@@ -136,24 +227,53 @@ $blue: #2142FF;
     transition: all 0.3s ease;
     cursor: pointer;
 
+    @media (max-width: 900px) {
+        font-size: 14px;
+    }
+
+    &:disabled {
+        background-color: #b4b4b4;
+    }
+}
+
+.black-cta {
+    background-color: $text-color;
+    color: #FFFF;
+    border: 1px solid $text-color;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    border-radius: 5px;
+    padding: 6px 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    @media (max-width: 900px) {
+        font-size: 14px;
+    }
+
     &:disabled {
         background-color: #b4b4b4;
     }
 }
 
 .red-cta {
-    background-color: #FFFF;
-    color: $red;
-    border: 1px solid $border-color;
+    background-color: $red;
+    color: #FFFF;
+    border: 1px solid $red;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
     border-radius: 5px;
-    padding: 6px 15px;
-    font-size: 14px;
+    padding: 10px 15px;
+    font-size: 16px;
     font-weight: 400;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 5px;
     transition: all 0.3s ease;
     cursor: pointer;
 
@@ -166,9 +286,8 @@ $blue: #2142FF;
         color: #FFFF;
     }
 
-    @media (max-width: 768px) {
-        font-size: 12px;
-        padding: 5px 10px;
+    @media (max-width: 900px) {
+        font-size: 14px;
     }
 }
 
@@ -185,7 +304,7 @@ $blue: #2142FF;
     .date {
         position: absolute;
         top: 10px;
-        right: 10px;
+        right: 15px;
 
         p {
             font-size: 14px;
@@ -195,9 +314,10 @@ $blue: #2142FF;
     }
 
     h6 {
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 600;
         margin: 0;
+        max-width: 70%;
 
         @media (max-width: 768px) {
             font-size: 18px;
@@ -279,5 +399,190 @@ $blue: #2142FF;
     &:last-child {
         border-bottom: none;
         padding: 10px 0 0;
+    }
+}
+
+.client-widget {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    border: 1px solid $border-color;
+    padding: 10px;
+    border-radius: 5px;
+
+    @media (max-width: 900px) {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .left {
+        flex: 1;
+
+        h6 {
+            font-size: 1.2rem;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        span {
+            font-size: .9rem;
+            color: $blue;
+        }
+
+        .business-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 10px;
+
+            @media (max-width: 900px) {
+                flex-direction: row;
+                gap: 7px;
+                margin-top: 5px;
+            }
+
+            p {
+                font-size: 1rem;
+                color: $text-color;
+            }
+        }
+    }
+
+    .right {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+
+        @media (max-width: 900px) {
+            flex-direction: row;
+        }
+
+        button,
+        a {
+            flex: 1;
+            width: 100%;
+        }
+
+        .white-cta {
+            border-color: $border-color;
+            color: $text-color;
+            background-color: #F7F8FA;
+        }
+    }
+}
+
+.product-widget {
+    border: 1px solid $border-color;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #FFFF;
+
+    .product {
+        h6 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+
+            @media (max-width: 768px) {
+                font-size: 18px;
+            }
+        }
+
+        p {
+            font-size: 1rem;
+            margin: 0;
+        }
+    }
+
+    .details {
+        display: flex;
+        gap: 10px;
+        margin-top: 5px;
+
+        p {
+            font-size: 16px;
+            color: $text-color;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+
+        button {
+            flex: 1;
+        }
+
+        .white-cta {
+            border-color: $border-color;
+            color: $text-color;
+        }
+    }
+}
+
+.product-store-widget {
+    border: 1px solid $border-color;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+
+    .product {
+        flex: 1.5;
+
+        h6 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+
+            @media (max-width: 768px) {
+                font-size: 18px;
+            }
+        }
+
+        p {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .stock {
+            margin-top: 20px;
+
+            p {
+                color: $blue;
+            }
+        }
+    }
+
+    .actions {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .price {
+            border: 1px solid $green;
+            background-color: #E8F6ED;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+
+            p {
+                font-weight: 500;
+                color: $green;
+                font-size: 1rem;
+            }
+        }
+
+        button {
+            flex: 1;
+        }
     }
 }

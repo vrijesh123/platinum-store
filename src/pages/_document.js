@@ -4,10 +4,10 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <title>APEX ODR </title>
+        <title>Platinum Store </title>
         <meta name="description"
-          content="APEX ODR - A Digital Risk Platform | Brand Protection | Cyber Threat Intelligence Solution " />
-        <meta name="keywords" content="APEX ODR, Brand Protection, Cyber Threat Intelligence Solution, Data Breach Prevention, Fraudulent App Detection, Domain Spoofing & Typosquatting Detection" />
+          content="Platinum Store - A Digital Risk Platform | Brand Protection | Cyber Threat Intelligence Solution " />
+        <meta name="keywords" content="Platinum Store, Brand Protection, Cyber Threat Intelligence Solution, Data Breach Prevention, Fraudulent App Detection, Domain Spoofing & Typosquatting Detection" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
@@ -30,8 +30,8 @@ export default function Document() {
 
         {/* og image tag*/}
         <meta property="og:image" content="https://tw360.vercel.app/logo/footer-logo.png" />
-        <meta property="og:title" content="APEX ODR" />
-        <meta property="og:description" content="APEX ODR - A Digital Risk Platform | Brand Protection | Cyber Threat Intelligence Solution" />
+        <meta property="og:title" content="Platinum Store" />
+        <meta property="og:description" content="Platinum Store - A Digital Risk Platform | Brand Protection | Cyber Threat Intelligence Solution" />
       </Head>
 
       <body>

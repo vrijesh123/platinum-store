@@ -1,67 +1,90 @@
-import InfoCard from "@/components/global_components/Cards/InfoCard";
 import GlobalForm from "@/components/global_components/GlobalForm";
-import GlobalTable from "@/components/global_components/GlobalTable";
-import Drawer from "@/components/global_components/components/Drawer";
-import InfoBox from "@/components/global_components/components/InfoBox";
-import NoticeDrafts from "@/components/global_components/components/NoticeDrafts";
-import DeleteConfirmation from "@/components/global_components/utils/DeleteConfirmation";
-import TextEditor from "@/components/global_components/utils/RichTextEditor/TextEditor";
 import { AuthContext } from "@/context/AuthContext";
-import { useTenantAPI } from "@/hooks/useTenantAPI";
-import TableSkeleton from "@/utils/LoadingSkeletons/TableSkeleton";
-import { Add } from "@mui/icons-material";
-import { Breadcrumbs, Button, FormControl, Menu, MenuItem, Select, Tooltip } from "@mui/material";
-import moment from "moment";
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 
 export default function Login() {
     const router = useRouter()
     const { login } = useContext(AuthContext)
-
     const [otp, setOtp] = useState("")
     const [showOtp, setshowOtp] = useState(false)
     const [isComplete, setIsComplete] = useState(false);
     const [number, setnumber] = useState(null)
 
+
     const form_json = [
-        // {
-        //     type: "text",
-        //     name: "username",
-        //     label: "Username",
-        //     fullWidth: true,
-        //     variant: 'outlined',
-        //     xs: 12,
-        //     validation_message: "Please enter username",
-        //     required: true,
-        // },
         {
-            type: "tel",
-            name: "mobile_number",
-            label: "Mobile Number",
+            type: "text",
+            name: "username",
+            label: "Username",
+            fullWidth: true,
+            variant: 'outlined',
+            xs: 12,
+            validation_message: "Please enter username",
+            required: true,
+        },
+        {
+            type: "password",
+            name: "password",
+            label: "Password",
             fullWidth: true,
             variant: 'outlined',
             show_password: true,
             xs: 12,
-            placeholder: 'Enter your 10-digit mobile number',
-            validation_message: "Please enter mobile number",
+            placeholder: 'Enter your password',
+            validation_message: "Please enter password",
             required: true,
         },
     ]
 
     const handleSubmit = async (value, resetForm) => {
-        const { mobile_number } = value
+        const { username, password } = value
+        try {
+            await login(username, password)
 
-        setshowOtp(true)
-        setnumber(mobile_number)
-        // try {
-        //     await login(username, password)
-
-        // } catch (error) {
-
-        // }
+        } catch (error) {
+            console.log(error)
+        }
     }
+
+    // const form_json = [
+    //     // {
+    //     //     type: "text",
+    //     //     name: "username",
+    //     //     label: "Username",
+    //     //     fullWidth: true,
+    //     //     variant: 'outlined',
+    //     //     xs: 12,
+    //     //     validation_message: "Please enter username",
+    //     //     required: true,
+    //     // },
+    //     {
+    //         type: "tel",
+    //         name: "mobile_number",
+    //         label: "Mobile Number",
+    //         fullWidth: true,
+    //         variant: 'outlined',
+    //         show_password: true,
+    //         xs: 12,
+    //         placeholder: 'Enter your 10-digit mobile number',
+    //         validation_message: "Please enter mobile number",
+    //         required: true,
+    //     },
+    // ]
+
+    // const handleSubmit = async (value, resetForm) => {
+    //     const { mobile_number } = value
+
+    //     setshowOtp(true)
+    //     setnumber(mobile_number)
+    //     // try {
+    //     //     await login(username, password)
+
+    //     // } catch (error) {
+
+    //     // }
+    // }
 
     const handleOtpComplete = (code) => {
         setIsComplete(true);
@@ -72,11 +95,12 @@ export default function Login() {
     const verifyOTP = async () => {
         // call your API here
         // await api.verifyOTP({ number, otp });
-        router.push('/dashboard')
+        router.push('/tenant/store')
     };
+
     return (
         <>
-            <div className="login-container">
+            {/* <div className="login-container">
                 <div className="left-container">
                     <div className="logo-container">
                         <img src="/logo/logo.png" alt="" />
@@ -126,6 +150,28 @@ export default function Login() {
                             </div>
                         </div>
                     )}
+                </div>
+            </div> */}
+
+            <div className="admin-login">
+                <div className="left-container">
+                    <div className="form-container">
+                        <div className="form-heading">
+                            <h4>Welcome</h4>
+                            <p>Check stock, see prices & place orders quickly.</p>
+                        </div>
+                        <div className="form">
+                            <GlobalForm
+                                form_config={form_json}
+                                on_Submit={handleSubmit}
+                                btnClassName={'blue-cta'}
+                                btnText="Login"
+                                spacing={0}
+                            >
+                            </GlobalForm>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </>

@@ -11,7 +11,7 @@ export const useTenantAPI = () => {
 
             if (hostParts.length > 1 && hostParts[0] !== 'www') {
                 const tenant = hostParts[0];
-                const baseURL = `http://${tenant}.apexodr-uat.com`;
+                const baseURL = `http://${tenant}.theplatinumstore.xyz/api`;
                 setTenantAPI(createTenantAPI(baseURL));
             }
         }

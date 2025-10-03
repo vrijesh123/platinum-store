@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
-import { LogoutApi, userLoginAPI, userSignUpAPI } from '@/api/loginAPI';
+import { LogoutApi, userLoginAPI, userSignUpAPI } from '@/api/adminApi';
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
@@ -43,11 +43,10 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-
     const login = async (username, password) => {
         const subdomain = getSubdomain()
         try {
-            const response = await tenantAPI.post('/api/institute/token/', {
+            const response = await tenantAPI.post('/admin/token/', {
                 username,
                 password,
             });
@@ -59,22 +58,18 @@ export const AuthProvider = ({ children }) => {
 
                 Cookies.set('access_token', access);
                 Cookies.set('refresh_token', refresh);
+                Cookies.set('user', user_id);
 
                 localStorage.setItem('access_token', access);
                 localStorage.setItem('refresh_token', refresh);
-
+                localStorage.setItem('user', user_id);
 
                 // Update react state for user and permissions
                 setUser({ ...response });
 
-                // For tenant, redirect to subdomain
-                if (process.env.NODE_ENV === 'development') {
-                    // In development, use localhost subdomain
-                    window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
-                } else {
-                    // In production, use your actual domain
-                    window.location.href = `https://${subdomain}.yourdomain.com/dashboard`;
-                }
+                // In development, use localhost subdomain
+                window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
+
             } else {
                 // Handle unsuccessful login
                 toast.error('Something went wrong, Please try again!');
@@ -167,3 +162,5 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
+export const useAuth = () => useContext(AuthContext);

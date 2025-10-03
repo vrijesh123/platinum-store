@@ -124,7 +124,7 @@ body::-webkit-scrollbar-thumb {
 }
 @media screen and (max-width: 900px) {
   .main {
-    margin: 0 16px;
+    margin: 0;
   }
 }
 
@@ -1918,7 +1918,7 @@ section {
 @media screen and (max-width: 900px) {
   .side-menu {
     padding: 70px 10px 10px;
-    position: absolute;
+    position: fixed;
     left: -9999px;
   }
 }
@@ -1937,7 +1937,7 @@ section {
   color: #121212 !important;
 }
 .side-menu .logo-container {
-  width: 100px;
+  width: 200px;
   margin-bottom: 5px;
 }
 .side-menu .current-user {
@@ -1985,7 +1985,7 @@ section {
 }
 @media screen and (max-width: 1400px) {
   .side-menu .menu {
-    padding: 40px 10px 0;
+    padding: 40px 0 0;
   }
 }
 .side-menu .menu .menu-item {
@@ -1994,6 +1994,7 @@ section {
   padding: 12px;
   flex: 1;
   border: 1px solid transparent;
+  width: 100%;
   border-radius: 5px;
 }
 @media screen and (max-width: 768px) {
@@ -2103,9 +2104,37 @@ section {
   border: 1px solid #E6E6E6;
   background-color: rgb(247, 247, 247);
 }
+.side-menu .bottom ul li:hover span {
+  color: #121212;
+}
+.side-menu .bottom ul li:hover svg path,
+.side-menu .bottom ul li:hover svg circle,
+.side-menu .bottom ul li:hover svg rect,
+.side-menu .bottom ul li:hover svg line,
+.side-menu .bottom ul li:hover svg polyline,
+.side-menu .bottom ul li:hover svg polygon {
+  fill: #121212;
+}
+.side-menu .bottom ul .active {
+  background-color: rgb(247, 247, 247);
+}
+.side-menu .bottom ul .active span {
+  color: #121212;
+}
+.side-menu .bottom ul .active .icon svg path,
+.side-menu .bottom ul .active .icon svg circle,
+.side-menu .bottom ul .active .icon svg rect,
+.side-menu .bottom ul .active .icon svg line,
+.side-menu .bottom ul .active .icon svg polyline,
+.side-menu .bottom ul .active .icon svg polygon {
+  fill: #121212;
+}
 .side-menu .bottom ul .logout:hover {
   border: 1px solid transparent;
   background-color: rgba(239, 68, 68, 0.1019607843);
+}
+.side-menu .bottom ul .logout:hover span {
+  color: #D43131;
 }
 .side-menu .bottom ul .logout span {
   color: #D43131;
@@ -2432,6 +2461,12 @@ section {
   padding: 5px 10px;
   /* Space around the input and icon */
 }
+@media screen and (max-width: 900px) {
+  .table-container .search-container-wrapper .search-container {
+    width: 100%;
+    max-width: 500px;
+  }
+}
 .table-container .search-container-wrapper .search-container .icon-container {
   width: 18px;
   height: 18px;
@@ -2643,6 +2678,7 @@ section {
   color: #6B6B6B !important;
   font-size: 16px;
   margin-top: 10px;
+  margin-bottom: 5px;
 }
 @media screen and (max-width: 1400px) {
   .global-form label {
@@ -2651,6 +2687,11 @@ section {
 }
 .global-form .MuiOutlinedInput-input {
   padding: 18px 14px !important;
+}
+@media screen and (max-width: 900px) {
+  .global-form .MuiOutlinedInput-input {
+    padding: 10px 14px !important;
+  }
 }
 
 .form-box {

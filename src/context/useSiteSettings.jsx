@@ -1,4 +1,4 @@
-import { SiteSettingApi } from "@/api/commonApi";
+import { SiteSettingApi } from "@/api/adminApi";
 import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create Context

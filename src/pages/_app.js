@@ -13,19 +13,20 @@ import { getSubdomain } from '@/utils/commonUtils';
 import { ToastContainer } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
+import { CategoryProvider } from '@/context/useCategory';
 
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const domain = getSubdomain();
     const token = Cookies.get('access_token');
+    const user = Cookies.get('user');
 
-    if (domain && token) {
-      setIsAuthenticated(true);
+    if (user && token) {
+      setIsAdmin(true);
     }
 
     setIsReady(true);
@@ -38,23 +39,25 @@ export default function App({ Component, pageProps }) {
     <>
       <ToastContainer position='bottom-right' />
       <AuthProvider>
-        {isAuthenticated ? (
-          // <ProtectedRoute allowedRoles={protectedRoute?.roles}>
-          <>
-            <SideNav />
-            <main className="main">
-              <TopNavbar />
-              <div className="main-body">
-                <Component {...pageProps} />
-              </div>
-            </main>
-          </>
-          // </ProtectedRoute>
-        ) : (
-          <>
-            <Component {...pageProps} />
-          </>
-        )}
+        <CategoryProvider>
+          {isAdmin ? (
+            // <ProtectedRoute allowedRoles={protectedRoute?.roles}>
+            <>
+              <SideNav />
+              <main className="main">
+                <TopNavbar />
+                <div className="main-body">
+                  <Component {...pageProps} />
+                </div>
+              </main>
+            </>
+            // </ProtectedRoute>
+          ) : (
+            <>
+              <Component {...pageProps} />
+            </>
+          )}
+        </CategoryProvider>
       </AuthProvider>
     </>
   )

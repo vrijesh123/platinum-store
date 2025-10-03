@@ -2,70 +2,88 @@
 import { NextResponse } from 'next/server';
 
 export const config = {
-    matcher: '/:path*',
+    matcher: [
+        // run on all page routes (no change)
+        '/((?!_next/static|_next/image|favicon.ico).*)',
+    ],
 };
 
 export async function middleware(req) {
-    const { pathname, origin } = req.nextUrl
+    const { nextUrl: url } = req;
+    const { pathname, origin } = url;
 
-    // 1) Skip Next internals & API routes
-    if (
-        pathname.startsWith('/api') ||
-        pathname.startsWith('/_next') ||
-        pathname.startsWith('/favicon')
-    ) {
+    // 1) Extract host/subdomain
+    //    e.g. "tenant1.localhost:3000" → tenant="tenant1", rest=["localhost","3000"]
+    const host = req.headers.get('host') || '';
+    const hostParts = host.split('.');
+    const tenant = hostParts[0];
+    const isLocalhostPattern = host.endsWith('localhost') || host.includes('localhost:');
+
+    if (hostParts?.length <= 1) {
         return NextResponse.next();
     }
 
-    // 2) Extract subdomain
-    const host = req.headers.get('host');
-    const hostname = host.split(':')[0];
-    const parts = hostname.split('.');
+    // console.log(`Running middleware for tenant="${tenant}" hostParts=${JSON.stringify(hostParts)}`);
 
-    // If no subdomain or localhost, treat as public landing
-    if (parts.length < 2 || hostname === 'localhost') {
-        return NextResponse.next();
+    // 2) Pull access_token & valid_tenant cookie
+    const token = req.cookies.get('access_token')?.value;
+    const validTenantFlag = req.cookies.get('valid_tenant')?.value;
+    if (validTenantFlag === tenant) {
+        return handleAuthRedirects();
     }
 
-    const tenant = parts[0];
+    // 3) Build your check-domain URL dynamically
+    //    In dev we point at local API, in prod your real domain
+    const apiHost = process.env.NEXT_PUBLIC_BASE_API_URL;
+    const checkUrl = `${apiHost}/check-domain/?sub_domain=${tenant}.theplatinumstore.xyz`;
 
+    // 4) Verify tenant once, cache in cookie
     try {
-        // 3) Verify tenant
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/check-domain/?sub_domain=${tenant}.apexodr-uat.com`,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json, text/plain, */*",
-                }
+        const resp = await fetch(checkUrl, {
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json, text/plain, */*',
             }
-        );
+        });
 
-        console.log('response', response)
-
-
-        if (response.status == 404) {
-            throw new Error('Domain verification failed');
+        if (resp.status === 404) {
+            throw new Error('Domain not found');
+        }
+        const data = await resp.json();
+        if (data.status !== 'success') {
+            return NextResponse.rewrite(`${origin}/404`);
         }
 
-        const data = await response.json();
+        // domain OK → set cache cookie + handle redirects
+        const res = handleAuthRedirects();
+        res.cookies.set({
+            name: 'valid_tenant',
+            value: tenant,
+            path: '/',
+            maxAge: 60 * 5,   // 5 minutes
+        });
+        return res;
 
-        // 4) Invalid → show 404
-        if (data.status !== "success") {
-            return NextResponse.rewrite(new URL('/404', origin));
-        }
+    } catch (err) {
+        console.error('Tenant validation failed:', err);
+        return NextResponse.rewrite(`${origin}/404`);
+    }
 
-        // 5) Handle valid tenant
-        // If root path, redirect to login
+    // 5) Your “/ → login vs. dashboard” logic
+    function handleAuthRedirects() {
         if (pathname === '/') {
-            return NextResponse.redirect(
-                `${origin.replace('localhost', `${tenant}.localhost`)}/login`
-            );
-        }
+            // reconstruct host for redirect (preserves port in dev)
+            let targetHost = host;
+            // if we’re on “localhost” without subdomain, you might want to
+            // skip tenant logic altogether—but here we assume tenant.localhost:3000
+            if (!isLocalhostPattern && hostParts.length < 2) {
+                return NextResponse.next();
+            }
 
+            // go to dashboard if token exists, else login
+            const destPath = token ? '/dashboard' : '/login';
+            return NextResponse.redirect(`${url.protocol}//${targetHost}${destPath}`);
+        }
         return NextResponse.next();
-    } catch (error) {
-        console.log('Middleware error:', error);
-        return NextResponse.rewrite(new URL('/404', origin));
     }
 }

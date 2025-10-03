@@ -245,10 +245,13 @@ const GlobalForm = ({
     );
   };
 
+  console.log("Global Form", editingValues, initialValues);
+
   return (
     <ThemeProvider theme={custom_theme ? custom_theme : theme}>
       <Formik
         initialValues={editingValues ? editingValues : initialValues}
+        enableReinitialize={true}
         validationSchema={custom_schema ? custom_schema : validationSchema}
         onSubmit={(values, { resetForm }) => {
           on_Submit(values, resetForm); // Your custom submit logic

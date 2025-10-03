@@ -1,3 +1,7 @@
+import { adminMatrixApi } from "@/api/adminApi";
+import { useAuth } from "@/context/AuthContext";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { Close } from "@mui/icons-material";
 import { SwipeableDrawer } from "@mui/material";
 import moment from "moment";
@@ -5,36 +9,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
+  const tenantAPI = useTenantAPI();
+  const { user } = useAuth();
+
+  const is_mobile = useMediaQuery("(max-width: 900px)");
+
   const [out_of_stock, setout_of_stock] = useState(true);
   const [low_stock, setlow_stock] = useState(true);
   const [openDrawer, setopenDrawer] = useState(false);
 
-  const recent_orders = [
-    {
-      title: "Shree Mobile Parts",
-      total: 10500,
-      items: 50,
-      created_at: new Date(),
-    },
-    {
-      title: "Rajdeep Displays",
-      total: 15200,
-      items: 20,
-      created_at: new Date(),
-    },
-    {
-      title: "Kumar Electronics Mart",
-      total: 8750,
-      items: 5,
-      created_at: new Date(),
-    },
-    {
-      title: "Kumar Electronics Mart",
-      total: 10500,
-      items: 50,
-      created_at: new Date(),
-    },
-  ];
+  const [matrix, setmatrix] = useState(null);
+  const [recent_orders, setRecent_orders] = useState([]);
+  const [loading, setloading] = useState(false);
+
+  const [selectedOrder, setselectedOrder] = useState(null);
 
   const order_detail = {
     total_item: 355,
@@ -78,6 +66,33 @@ export default function Dashboard() {
       },
     ],
   };
+
+  const fetchMatrix = async () => {
+    try {
+      const res = await tenantAPI.get("/admin/matrix/");
+
+      if (res) {
+        setmatrix(res);
+      }
+    } catch (error) {}
+  };
+
+  const fetchRecentOrders = async () => {
+    try {
+      const res = await tenantAPI.get("/admin/order/?depth=True&nested=5");
+
+      if (res) {
+        setRecent_orders(res);
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchMatrix();
+    fetchRecentOrders();
+  }, [tenantAPI]);
+
+  console.log("Dashboard", user, recent_orders);
 
   return (
     <div className="container tenant-container">
@@ -175,17 +190,27 @@ export default function Dashboard() {
           </div>
 
           <div className="orders">
-            {recent_orders?.map((item, i) => (
+            {recent_orders?.results?.map((item, i) => (
               <div className="order-widget" key={i}>
-                <h6 className="line-clamp-1">{item?.title}</h6>
+                <h6 className="line-clamp-1">
+                  {item?.api_generate_invoice?.[0]?.client_name}
+                </h6>
 
                 <div className="order-details">
                   <div className="detail">
-                    <p className="price">₹{item?.total}</p>
-                    <p>{item?.items} items</p>
+                    <p className="price">₹{item?.total_price}</p>
+                    <p>
+                      {item?.api_generate_invoice?.[0]?.items?.length} items
+                    </p>
                   </div>
 
-                  <div className="blue-cta" onClick={() => setopenDrawer(true)}>
+                  <div
+                    className="blue-cta"
+                    onClick={() => {
+                      setselectedOrder(item);
+                      setopenDrawer(true);
+                    }}
+                  >
                     View Order
                   </div>
                 </div>
@@ -199,7 +224,7 @@ export default function Dashboard() {
         </div>
 
         <SwipeableDrawer
-          anchor="bottom"
+          anchor={is_mobile ? "bottom" : "right"}
           open={openDrawer}
           onOpen={() => setopenDrawer(true)}
           onClose={() => setopenDrawer(false)}
@@ -208,33 +233,39 @@ export default function Dashboard() {
             sx: {
               borderTopLeftRadius: 5,
               borderTopRightRadius: 5,
-              maxHeight: "90vh",
+              maxHeight: { lg: "100vh", md: "95vh" },
               color: "#fff",
+              width: { lg: "45vw", md: "100vw" },
             },
           }}
         >
           {/* drag handle */}
-          <div
-            style={{
-              width: 44,
-              height: 4,
-              borderRadius: 2,
-              margin: "10px auto",
-              background: "rgba(0,0,0, .7)",
-            }}
-          />
+          {is_mobile && (
+            <div
+              style={{
+                width: 44,
+                height: 4,
+                borderRadius: 2,
+                margin: "10px auto",
+                background: "rgba(0,0,0, .7)",
+                position: "relative",
+              }}
+            />
+          )}
 
           <div className="order-details-drawer">
             <div className="stats">
               <div className="stat">
                 <p>Total Items</p>
-                <span>{order_detail?.total_item}</span>
+                <span>
+                  {selectedOrder?.api_generate_invoice?.[0]?.items?.length}
+                </span>
               </div>
 
               <div className="stat">
                 <p>Total Order Amount</p>
                 <span style={{ color: "#16A34A" }}>
-                  ₹{order_detail?.total_amount}
+                  ₹{selectedOrder?.total_price}
                 </span>
               </div>
             </div>
@@ -243,21 +274,23 @@ export default function Dashboard() {
               <h6>Order Details</h6>
 
               <div className="orders">
-                {order_detail?.details?.map((item, i) => (
-                  <div className="product-detail-widget" key={i}>
-                    <div className="product-detail">
-                      <span>{item?.product_code}</span>
-                      <p>{item?.product}</p>
-                    </div>
+                {selectedOrder?.api_generate_invoice?.[0]?.items?.map(
+                  (item, i) => (
+                    <div className="product-detail-widget" key={i}>
+                      <div className="product-detail">
+                        <span>{item?.product_category}</span>
+                        <p>{item?.product}</p>
+                      </div>
 
-                    <div className="price-detail">
-                      <p>
-                        ₹{item?.price} x {item?.pcs}pcs
-                      </p>
-                      <span>₹10,500.00</span>
+                      <div className="price-detail">
+                        <p>
+                          ₹{item?.amount} x {item?.quantity}pcs
+                        </p>
+                        <span>₹{item?.amount * item?.quantity}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
 
@@ -286,10 +319,10 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
+          </div>
 
-            <div className="bottom-btn">
-              <button className="white-cta">Confirm Order</button>
-            </div>
+          <div className="bottom-btn">
+            <button className="white-cta">Confirm Order</button>
           </div>
         </SwipeableDrawer>
       </div>

@@ -28,15 +28,6 @@ const SideNav = () => {
   // State to control side menu visibility
   const [isSideMenuOpen, setSideMenuOpen] = useState(true);
 
-  // Function to adjust main tag margin as per side-nav width
-  const adjustMainMargin = useCallback(() => {
-    const sideMenu = document.querySelector(".side-menu");
-    const main = document.querySelector("main");
-
-    const sideMenuWidth = sideMenu.offsetWidth;
-    main.style.marginLeft = sideMenuWidth + 20 + "px";
-  }, [isSideMenuOpen]);
-
   const handleDetailsToggle = (details) => {
     const content = details.querySelector("ul");
     if (details.open) {
