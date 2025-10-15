@@ -5,15 +5,13 @@ import '../styles/main.css';
 import '../styles/Landing/styles.css';
 import { useRouter } from 'next/router';
 import { AuthProvider } from '@/context/AuthContext';
-import ProtectedRoute from '@/permissionConfigs/ProtectedRoute';
 import SideNav from '@/components/global_components/Navbars/SIdeNavbar';
 import TopNavbar from '@/components/global_components/Navbars/TopNavbar';
-import { ROLES } from '@/utils/constants';
-import { getSubdomain } from '@/utils/commonUtils';
 import { ToastContainer } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { CategoryProvider } from '@/context/useCategory';
+import { ProductsProvider } from '@/context/useProducts';
 
 
 export default function App({ Component, pageProps }) {
@@ -23,14 +21,22 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     const token = Cookies.get('access_token');
-    const user = Cookies.get('user');
+    const store_owner = Cookies.get('isStoreOwner');
+    const client = Cookies.get('is_client');
 
-    if (user && token) {
+    // If the path is /login → always set false
+    if (router.pathname === "/login") {
+      setIsAdmin(false);
+    } else if (client) {
+      setIsAdmin(false);
+    } else if (store_owner && token) {
       setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
     }
 
     setIsReady(true);
-  }, []);
+  }, [router.pathname]);
 
   if (!isReady) return null; // prevent hydration mismatch
 
@@ -40,23 +46,25 @@ export default function App({ Component, pageProps }) {
       <ToastContainer position='bottom-right' />
       <AuthProvider>
         <CategoryProvider>
-          {isAdmin ? (
-            // <ProtectedRoute allowedRoles={protectedRoute?.roles}>
-            <>
-              <SideNav />
-              <main className="main">
-                <TopNavbar />
-                <div className="main-body">
-                  <Component {...pageProps} />
-                </div>
-              </main>
-            </>
-            // </ProtectedRoute>
-          ) : (
-            <>
-              <Component {...pageProps} />
-            </>
-          )}
+          <ProductsProvider>
+            {isAdmin ? (
+              // <ProtectedRoute allowedRoles={protectedRoute?.roles}>
+              <>
+                <SideNav />
+                <main className="main">
+                  <TopNavbar />
+                  <div className="main-body">
+                    <Component {...pageProps} />
+                  </div>
+                </main>
+              </>
+              // </ProtectedRoute>
+            ) : (
+              <>
+                <Component {...pageProps} />
+              </>
+            )}
+          </ProductsProvider>
         </CategoryProvider>
       </AuthProvider>
     </>

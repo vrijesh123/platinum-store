@@ -8,3 +8,10 @@ export const createTenantAPI = (baseURL) => {
         // Add any tenant-specific configuration here
     });
 };
+
+export const createTenantNoAuthAPI = (baseURL) => {
+    return new APIBase({
+        baseURL: baseURL,
+        // Add any tenant-specific configuration here
+    });
+};

@@ -245,8 +245,6 @@ const GlobalForm = ({
     );
   };
 
-  console.log("Global Form", editingValues, initialValues);
-
   return (
     <ThemeProvider theme={custom_theme ? custom_theme : theme}>
       <Formik

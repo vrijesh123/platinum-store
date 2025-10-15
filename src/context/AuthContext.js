@@ -10,7 +10,7 @@ import { getSubdomain } from '@/utils/commonUtils';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const tenantAPI = useTenantAPI();
+    const { tenantAPI } = useTenantAPI();
 
     const [user, setUser] = useState(null);
     const [permissions, setPermissions] = useState([]);
@@ -43,32 +43,18 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = async (username, password) => {
-        const subdomain = getSubdomain()
+    const login = async (email, password) => {
         try {
-            const response = await tenantAPI.post('/admin/token/', {
-                username,
+            const response = await userLoginAPI.post('', {
+                email,
                 password,
             });
 
-            console.log('resssss', response, subdomain)
-
             if (response) {
-                const { access, refresh, username, user_id, schema } = response;
-
-                Cookies.set('access_token', access);
-                Cookies.set('refresh_token', refresh);
-                Cookies.set('user', user_id);
-
-                localStorage.setItem('access_token', access);
-                localStorage.setItem('refresh_token', refresh);
-                localStorage.setItem('user', user_id);
-
-                // Update react state for user and permissions
-                setUser({ ...response });
+                const { access, refresh, user_id, tenants } = response;
 
                 // In development, use localhost subdomain
-                window.location.href = `http://${subdomain}.localhost:3000/dashboard`;
+                window.location.href = `http://${tenants?.[0]?.schema_name}.localhost:3000/authenticate?access=${access}&refresh=${refresh}`;
 
             } else {
                 // Handle unsuccessful login
@@ -147,17 +133,45 @@ export const AuthProvider = ({ children }) => {
 
             toast.success('Logged Out Successfully')
 
-            localStorage.clear()
+            localStorage.clear();
+            Object.keys(Cookies.get()).forEach((cookieName) => {
+                Cookies.remove(cookieName);
+            })
+
             setUser(null);
             setPermissions([]);
-            router.push('/login');
+            window.location.href = process.env.NEXT_PUBLIC_BASE_URL;
+        } catch (error) {
+
+        }
+    };
+
+    const clientLogout = async () => {
+        const refreshToken = Cookies.get("refresh_token");
+        const sub_domain = getSubdomain();
+
+        try {
+            await LogoutApi.post("", {
+                refresh: refreshToken,
+            });
+
+            toast.success('Logged Out Successfully')
+
+            localStorage.clear();
+            Object.keys(Cookies.get()).forEach((cookieName) => {
+                Cookies.remove(cookieName);
+            })
+
+            setUser(null);
+            setPermissions([]);
+            window.location.href = `http://${sub_domain}.localhost:3000/login`;
         } catch (error) {
 
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, permissions, login, logout, signup, loading }}>
+        <AuthContext.Provider value={{ user, permissions, login, logout, clientLogout, signup, loading }}>
             {children}
         </AuthContext.Provider>
     );

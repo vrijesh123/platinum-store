@@ -28,6 +28,8 @@ export async function middleware(req) {
     // 2) Pull access_token & valid_tenant cookie
     const token = req.cookies.get('access_token')?.value;
     const validTenantFlag = req.cookies.get('valid_tenant')?.value;
+    const isClient = req.cookies.get('is_client')?.value === 'true';
+
     if (validTenantFlag === tenant) {
         return handleAuthRedirects();
     }
@@ -70,20 +72,42 @@ export async function middleware(req) {
     }
 
     // 5) Your “/ → login vs. dashboard” logic
+    // function handleAuthRedirects() {
+    //     if (pathname === '/') {
+    //         // reconstruct host for redirect (preserves port in dev)
+    //         let targetHost = host;
+    //         // if we’re on “localhost” without subdomain, you might want to
+    //         // skip tenant logic altogether—but here we assume tenant.localhost:3000
+    //         if (!isLocalhostPattern && hostParts.length < 2) {
+    //             return NextResponse.next();
+    //         }
+
+    //         // go to dashboard if token exists, else login
+    //         const destPath = token ? '/dashboard' : '/login';
+    //         return NextResponse.redirect(`${url.protocol}//${targetHost}${destPath}`);
+    //     }
+    //     return NextResponse.next();
+    // }
     function handleAuthRedirects() {
+        // Only redirect on homepage to avoid infinite loops
         if (pathname === '/') {
-            // reconstruct host for redirect (preserves port in dev)
-            let targetHost = host;
-            // if we’re on “localhost” without subdomain, you might want to
-            // skip tenant logic altogether—but here we assume tenant.localhost:3000
-            if (!isLocalhostPattern && hostParts.length < 2) {
-                return NextResponse.next();
+            const targetHost = host;
+
+            // If token present
+            if (token) {
+                // If client → /tenant/store
+                if (isClient && validTenantFlag) {
+                    return NextResponse.redirect(`${url.protocol}//${targetHost}/tenant/store`);
+                }
+                // Otherwise → /dashboard
+                return NextResponse.redirect(`${url.protocol}//${targetHost}/dashboard`);
             }
 
-            // go to dashboard if token exists, else login
-            const destPath = token ? '/dashboard' : '/login';
-            return NextResponse.redirect(`${url.protocol}//${targetHost}${destPath}`);
+            // No token → /login
+            return NextResponse.redirect(`${url.protocol}//${targetHost}/login`);
         }
+
+        // For other paths, allow request
         return NextResponse.next();
     }
 }

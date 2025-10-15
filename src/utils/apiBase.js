@@ -122,18 +122,27 @@ export default class APIBase {
 
       // Check if the response is a 401 with a specific token expiration message
       if (
-        token &&
         status === 401 &&
-        errorMessage == "Authentication credentials were not provided."
+        data?.code == "token_not_valid"
       ) {
         // Clear the token from local storage
         localStorage.clear()
-        Cookies.clear()
+        Object.keys(Cookies.get()).forEach((cookieName) => {
+          Cookies.remove(cookieName);
+        })
 
         // Show an alert message and redirect the user to the login page
-        Swal.fire("Session Expired", "Your token has been expired, please login again", "warning").then(() => {
-          window.location.href = "/login"; // Redirect to login page
+        Swal.fire({
+          title: "Session Expired!",
+          text: "Your token has expired. Would you like to login again?",
+          icon: "warning",
+          confirmButtonText: "Ok",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = process.env.NEXT_PUBLIC_BASE_URL; // Redirect to login page
+          }
         });
+
         return;
       }
 
@@ -145,9 +154,31 @@ export default class APIBase {
       ) {
         // Clear the token from local storage
         localStorage.clear()
+        Object.keys(Cookies.get()).forEach((cookieName) => {
+          Cookies.remove(cookieName);
+        })
 
         // Show an alert message and redirect the user to the login page
         Swal.fire("Invalid Session!", "Your Session Is Invalid, Please Login Again", "warning").then(() => {
+          window.location.href = "/login"; // Redirect to login page
+        });
+        return;
+      }
+
+      // Check if the response is a 403 with Permission denied
+      if (
+        token &&
+        status === 403 &&
+        (data?.error === "You do not have permission to perform this action." || data?.detail === "You do not have permission to perform this action.")
+      ) {
+        // Clear the token from local storage
+        localStorage.clear()
+        Object.keys(Cookies.get()).forEach((cookieName) => {
+          Cookies.remove(cookieName);
+        })
+
+        // Show an alert message and redirect the user to the login page
+        Swal.fire("No Permission!", "You do not have permission for this page", "warning").then(() => {
           window.location.href = "/login"; // Redirect to login page
         });
         return;
@@ -293,7 +324,7 @@ export default class APIBase {
 
   // Methods for token management in local storage
   getToken() {
-    return Cookies.get("access_token");
+    return Cookies.get('access_token');
   }
 
   setToken(token) {

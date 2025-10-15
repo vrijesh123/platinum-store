@@ -2,7 +2,7 @@ import GlobalForm from "@/components/global_components/GlobalForm";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { Call } from "@mui/icons-material";
-import { Box, SwipeableDrawer } from "@mui/material";
+import { SwipeableDrawer } from "@mui/material";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -30,33 +30,13 @@ const form_json = [
     required: true,
     variant: "outlined",
   },
-  {
-    type: "tel",
-    name: "alternative _number",
-    label: "Alternative  number",
-    placeholder: "Enter Alternative  number",
-    fullWidth: true,
-    xs: 12,
-    variant: "outlined",
-  },
-  {
-    type: "text",
-    name: "city",
-    label: "City",
-    placeholder: "Enter City",
-    fullWidth: true,
-    xs: 12,
-    validation_message: "Please enter city",
-    required: true,
-    variant: "outlined",
-  },
 ];
 
 const Clients = () => {
   const is_mobile = useMediaQuery("(max-width: 900px)");
   const router = useRouter();
 
-  const tenantAPI = useTenantAPI();
+  const { tenantAPI } = useTenantAPI();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [openDrawer, setopenDrawer] = useState(false);
@@ -64,7 +44,7 @@ const Clients = () => {
 
   const fetchClients = async () => {
     try {
-      const res = await tenantAPI.get("/admin/client/");
+      const res = await tenantAPI.get("/store-owner/client/");
 
       if (res) {
         setClients(res);
@@ -78,7 +58,7 @@ const Clients = () => {
 
   const handleSubmit = async (values, resetForm) => {
     try {
-      await tenantAPI.post("/admin/client/", values);
+      await tenantAPI.post("/store-owner/client/", values);
 
       resetForm();
       fetchClients();
@@ -128,12 +108,16 @@ const Clients = () => {
             <div className="client-widget" key={i}>
               <div className="left">
                 <h6>{item?.name}</h6>
-                <span>Mumbai</span>
 
                 <div className="business-details">
-                  <p>Total Orders: {item?.total_orders}</p>
+                  <p style={{ color: "#2142FF" }}>
+                    Total Orders: {item?.api_total_orders?.[0]}
+                  </p>
                   <p style={{ color: "#16A34A" }}>
-                    Total Buy: {item?.total_buy}
+                    Total Buy: ₹{item?.api_total_buy?.[0]}
+                  </p>
+                  <p style={{ color: "#D43131" }}>
+                    Outstandings: ₹{item?.api_total_buy?.[0]}
                   </p>
                 </div>
               </div>
@@ -192,6 +176,7 @@ const Clients = () => {
             form_config={form_json}
             on_Submit={handleSubmit}
             btnClassName={"blue-cta"}
+            spacing={1}
           ></GlobalForm>
         </div>
 

@@ -4,16 +4,16 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 
 // Create Context
-export const ProductCategory = createContext();
+export const Products = createContext();
 
 // Provider Component
-export const CategoryProvider = ({ children }) => {
+export const ProductsProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const { tenantAPI } = useTenantAPI();
 
-    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
 
-    const fetch_category = async () => {
+    const fetch_products = async () => {
         const client = Cookies.get('is_client');
 
         try {
@@ -21,11 +21,11 @@ export const CategoryProvider = ({ children }) => {
 
             if (client) {
                 res = await tenantAPI.get(
-                    `/client/product-category/?page_size=1000`
+                    `/client/product/?page_size=1000`
                 );
             } else {
                 res = await tenantAPI.get(
-                    `/store-owner/product-category/?page_size=1000`
+                    `/store-owner/product/?page_size=1000`
                 );
             }
 
@@ -35,7 +35,7 @@ export const CategoryProvider = ({ children }) => {
                     value: item?.id,
                     label: item?.name
                 }))
-                setCategories(data);
+                setProducts(data);
             }
         } catch (err) {
             console.error(err);
@@ -44,16 +44,16 @@ export const CategoryProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            fetch_category();
+            fetch_products();
         }
     }, [tenantAPI, user]);
 
     return (
-        <ProductCategory.Provider value={{ categories, setCategories }}>
+        <Products.Provider value={{ products, setProducts }}>
             {children}
-        </ProductCategory.Provider>
+        </Products.Provider>
     );
 };
 
 // Custom hook for accessing company details context
-export const useProductCategory = () => useContext(ProductCategory);
+export const useProducts = () => useContext(Products);

@@ -135,51 +135,10 @@ const Navbar = () => {
           <div className="nav-links-container">
             <div className="nav-links">
               {/* <!-- Replace `navItems` with actual nav items --> */}
-              <Link href={"/"} className="nav-link">
+              {/* <Link href={"/"} className="nav-link">
                 Home
               </Link>
-              <Link href={"/pricing"}>Pricing</Link>
-
-              <div
-                className="nav-item"
-                onMouseEnter={() => setShowResource(true)}
-                onMouseLeave={() => setShowResource(false)}
-              >
-                <div className="categories-dropdown">
-                  Resources
-                  {showResource ? <ExpandLess /> : <ExpandMore />}
-                </div>
-                {showResource && (
-                  <ul
-                    className="dropdown-menu"
-                    style={{
-                      gridTemplateColumns: "repeat(1, 1fr)",
-                      width: "140px",
-                      left: 0,
-                    }}
-                  >
-                    <Link href={"/faq"}>
-                      <li>FAQ&apos;s</li>
-                    </Link>
-                    <Link href={"/blogs"}>
-                      <li>Blogs</li>
-                    </Link>
-                    <Link href={"/about-us"}>
-                      <li>About Us</li>
-                    </Link>
-                    <Link href={"/contact-us"}>Contact Us</Link>
-                  </ul>
-                )}
-              </div>
-
-              <div className="btns">
-                <Link href={"/signup"}>
-                  <button className="SignUp-btn">Sign Up</button>
-                </Link>
-                <Link href={"/login"}>
-                  <button className="login-btn">Login</button>
-                </Link>
-              </div>
+              <Link href={"/pricing"}>Pricing</Link> */}
             </div>
           </div>
 

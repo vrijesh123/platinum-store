@@ -146,6 +146,26 @@ $green: #16A34A;
             font-weight: 500;
         }
     }
+
+    .paid {
+        border: 1px solid $green;
+        background-color: #E8F6ED;
+
+        p,
+        span {
+            color: $green;
+        }
+    }
+
+    .outstanding {
+        border: 1px solid $red;
+        background-color: #FFEAEA;
+
+        p,
+        span {
+            color: $red;
+        }
+    }
 }
 
 .categories {
@@ -291,9 +311,132 @@ $green: #16A34A;
     }
 }
 
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked+.slider {
+        background-color: $green;
+    }
+
+    input:focus+.slider {
+        box-shadow: 0 0 1px $green;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+}
+
+
+
 
 
 /////////////////////////// Cards //////////////////////////
+
+.out-standing-widget {
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+
+    .details {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        .info {
+            flex: 2;
+
+            p {
+                font-size: 18px;
+                font-weight: 500;
+                color: $text-color;
+            }
+
+            span {
+                font-size: 14px;
+                color: $green;
+            }
+        }
+
+        .outstanding {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+
+            p {
+                border: 1px solid $red;
+                padding: 5px 10px;
+                border-radius: 5px;
+                background-color: #FFEAEA;
+                font-size: 16px;
+                color: $red;
+                max-width: fit-content;
+            }
+        }
+
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+
+        button,
+        a {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+        }
+    }
+}
 
 .order-widget {
     border: 1px solid $border-color;
@@ -305,6 +448,7 @@ $green: #16A34A;
         position: absolute;
         top: 10px;
         right: 15px;
+        text-align: right;
 
         p {
             font-size: 14px;
@@ -329,7 +473,7 @@ $green: #16A34A;
         gap: 10px;
         align-items: flex-end;
         justify-content: space-between;
-        margin-top: 16px;
+        margin-top: 5px;
 
         .detail {
             .price {
@@ -353,6 +497,8 @@ $green: #16A34A;
     padding: 5px 0 10px;
 
     .product-detail {
+        flex: 1;
+
         span {
             font-size: 16px;
             color: #2142FF;
@@ -375,13 +521,15 @@ $green: #16A34A;
     }
 
     .price-detail {
+        text-align: right;
+
         span {
-            font-size: 16px;
+            font-size: 18px;
             color: #16A34A;
             font-weight: 600;
 
             @media (max-width: 768px) {
-                font-size: 14px;
+                font-size: 16px;
             }
         }
 
@@ -434,16 +582,17 @@ $green: #16A34A;
             flex-direction: column;
             gap: 0;
             margin-top: 10px;
+            flex-wrap: wrap;
 
             @media (max-width: 900px) {
-                flex-direction: row;
-                gap: 7px;
+                gap: 5px;
                 margin-top: 5px;
             }
 
             p {
                 font-size: 1rem;
                 color: $text-color;
+                text-wrap: nowrap;
             }
         }
     }
@@ -553,7 +702,7 @@ $green: #16A34A;
         }
 
         .stock {
-            margin-top: 20px;
+            margin-top: 10px;
 
             p {
                 color: $blue;
@@ -565,7 +714,7 @@ $green: #16A34A;
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
 
         .price {
             border: 1px solid $green;
@@ -584,5 +733,84 @@ $green: #16A34A;
         button {
             flex: 1;
         }
+    }
+}
+
+.cart-widget {
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    padding: 10px 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+
+    .cart-details {
+        p {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+            color: $text-color;
+        }
+
+        span {
+            font-size: 14px;
+            color: $grey-text-color;
+        }
+
+        .stock {
+            font-size: 14px;
+            color: $blue;
+            font-weight: 500;
+        }
+    }
+
+    .cart-quantity {
+        display: flex;
+        gap: 10px;
+
+        .price {
+            flex: 1;
+
+            p {
+                padding: 5px 10px;
+                font-size: 14px;
+                font-weight: 500;
+                background-color: #E8F6ED;
+                color: $green;
+                border: 1px solid $green;
+                border-radius: 5px;
+                max-width: fit-content;
+            }
+        }
+
+        .qty {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 5px;
+
+            button {
+                padding: 5px;
+            }
+
+            input {
+                text-align: center;
+                border: 1px solid $border-color;
+                background-color: #FAFAFA;
+                border-radius: 5px;
+                width: 120px;
+            }
+
+        }
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 20px;
+        height: 20px;
     }
 }

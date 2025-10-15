@@ -1,90 +1,57 @@
 import GlobalForm from "@/components/global_components/GlobalForm";
-import { AuthContext } from "@/context/AuthContext";
-
+import { useTenantAPI } from "@/hooks/useTenantAPI";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Login() {
+    const { tenantNoAuthAPI } = useTenantAPI();
     const router = useRouter()
-    const { login } = useContext(AuthContext)
     const [otp, setOtp] = useState("")
     const [showOtp, setshowOtp] = useState(false)
     const [isComplete, setIsComplete] = useState(false);
     const [number, setnumber] = useState(null)
 
-
     const form_json = [
+        // {
+        //     type: "text",
+        //     name: "username",
+        //     label: "Username",
+        //     fullWidth: true,
+        //     variant: 'outlined',
+        //     xs: 12,
+        //     validation_message: "Please enter username",
+        //     required: true,
+        // },
         {
-            type: "text",
-            name: "username",
-            label: "Username",
-            fullWidth: true,
-            variant: 'outlined',
-            xs: 12,
-            validation_message: "Please enter username",
-            required: true,
-        },
-        {
-            type: "password",
-            name: "password",
-            label: "Password",
+            type: "tel",
+            name: "mobile_number",
+            label: "Mobile Number",
             fullWidth: true,
             variant: 'outlined',
             show_password: true,
             xs: 12,
-            placeholder: 'Enter your password',
-            validation_message: "Please enter password",
+            placeholder: 'Enter your 10-digit mobile number',
+            validation_message: "Please enter mobile number",
             required: true,
         },
     ]
 
     const handleSubmit = async (value, resetForm) => {
-        const { username, password } = value
+        const { mobile_number } = value
+
         try {
-            await login(username, password)
+            await tenantNoAuthAPI.post('/client/request-otp/', { calling_code: '91', phone_number: mobile_number });
+
+            setnumber(mobile_number)
+            toast.success("OTP has been sent successfully");
+            setshowOtp(true)
 
         } catch (error) {
-            console.log(error)
+            toast.error("Error in sending OTP");
         }
     }
-
-    // const form_json = [
-    //     // {
-    //     //     type: "text",
-    //     //     name: "username",
-    //     //     label: "Username",
-    //     //     fullWidth: true,
-    //     //     variant: 'outlined',
-    //     //     xs: 12,
-    //     //     validation_message: "Please enter username",
-    //     //     required: true,
-    //     // },
-    //     {
-    //         type: "tel",
-    //         name: "mobile_number",
-    //         label: "Mobile Number",
-    //         fullWidth: true,
-    //         variant: 'outlined',
-    //         show_password: true,
-    //         xs: 12,
-    //         placeholder: 'Enter your 10-digit mobile number',
-    //         validation_message: "Please enter mobile number",
-    //         required: true,
-    //     },
-    // ]
-
-    // const handleSubmit = async (value, resetForm) => {
-    //     const { mobile_number } = value
-
-    //     setshowOtp(true)
-    //     setnumber(mobile_number)
-    //     // try {
-    //     //     await login(username, password)
-
-    //     // } catch (error) {
-
-    //     // }
-    // }
 
     const handleOtpComplete = (code) => {
         setIsComplete(true);
@@ -94,13 +61,31 @@ export default function Login() {
 
     const verifyOTP = async () => {
         // call your API here
-        // await api.verifyOTP({ number, otp });
-        router.push('/tenant/store')
+
+        try {
+            const res = await tenantNoAuthAPI.post('/client/verify-otp/', { phone_number: number, otp: otp });
+
+            const { access, refresh, client } = res;
+
+            Cookies.set('access_token', access);
+            Cookies.set('refresh_token', refresh);
+            Cookies.set('client', client);
+            Cookies.set('is_client', true);
+
+            localStorage.setItem('access_token', access);
+            localStorage.setItem('refresh_token', refresh);
+
+            // Redirect to dashboard after setting tokens
+            window.location.href = '/tenant/store';
+
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     return (
         <>
-            {/* <div className="login-container">
+            <div className="login-container">
                 <div className="left-container">
                     <div className="logo-container">
                         <img src="/logo/logo.png" alt="" />
@@ -151,29 +136,8 @@ export default function Login() {
                         </div>
                     )}
                 </div>
-            </div> */}
-
-            <div className="admin-login">
-                <div className="left-container">
-                    <div className="form-container">
-                        <div className="form-heading">
-                            <h4>Welcome</h4>
-                            <p>Check stock, see prices & place orders quickly.</p>
-                        </div>
-                        <div className="form">
-                            <GlobalForm
-                                form_config={form_json}
-                                on_Submit={handleSubmit}
-                                btnClassName={'blue-cta'}
-                                btnText="Login"
-                                spacing={0}
-                            >
-                            </GlobalForm>
-                        </div>
-                    </div>
-
-                </div>
             </div>
+
         </>
     );
 }

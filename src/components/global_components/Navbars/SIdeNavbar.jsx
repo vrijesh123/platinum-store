@@ -26,7 +26,7 @@ const SideNav = () => {
   };
 
   // State to control side menu visibility
-  const [isSideMenuOpen, setSideMenuOpen] = useState(true);
+  const [isSideMenuOpen, setSideMenuOpen] = useState(false);
 
   const handleDetailsToggle = (details) => {
     const content = details.querySelector("ul");

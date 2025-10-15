@@ -1,21 +1,24 @@
 import { adminMatrixApi } from "@/api/adminApi";
-import { useAuth } from "@/context/AuthContext";
+import { AuthContext, useAuth } from "@/context/AuthContext";
+import { useProductCategory } from "@/context/useCategory";
+import { useProducts } from "@/context/useProducts";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
-import { Close } from "@mui/icons-material";
+import { Call, Close } from "@mui/icons-material";
 import { SwipeableDrawer } from "@mui/material";
+import { BellIcon } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 export default function Dashboard() {
-  const tenantAPI = useTenantAPI();
-  const { user } = useAuth();
+  const { tenantAPI } = useTenantAPI();
+  const { user } = useContext(AuthContext);
+  const { products } = useProducts();
+  const { categories } = useProductCategory();
 
   const is_mobile = useMediaQuery("(max-width: 900px)");
 
-  const [out_of_stock, setout_of_stock] = useState(true);
-  const [low_stock, setlow_stock] = useState(true);
   const [openDrawer, setopenDrawer] = useState(false);
 
   const [matrix, setmatrix] = useState(null);
@@ -23,53 +26,13 @@ export default function Dashboard() {
   const [loading, setloading] = useState(false);
 
   const [selectedOrder, setselectedOrder] = useState(null);
+  const [low_stock, setlow_stock] = useState(true);
 
-  const order_detail = {
-    total_item: 355,
-    total_amount: 413900,
-    details: [
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-      {
-        product: "OLED IC - 16Plus",
-        product_code: "GX-Iphone",
-        price: 770,
-        pcs: 50,
-      },
-    ],
-  };
+  const [clientPayments, setclientPayments] = useState(null);
 
   const fetchMatrix = async () => {
     try {
-      const res = await tenantAPI.get("/admin/matrix/");
+      const res = await tenantAPI.get("/store-owner/matrix");
 
       if (res) {
         setmatrix(res);
@@ -77,9 +40,23 @@ export default function Dashboard() {
     } catch (error) {}
   };
 
+  const fetchPayments = async () => {
+    try {
+      const res = await tenantAPI.get(
+        "/store-owner/client-payment/?depth=3&nested=True&page_size=1000"
+      );
+
+      if (res) {
+        setclientPayments(res?.results);
+      }
+    } catch (error) {}
+  };
+
   const fetchRecentOrders = async () => {
     try {
-      const res = await tenantAPI.get("/admin/order/?depth=True&nested=5");
+      const res = await tenantAPI.get(
+        "/store-owner/order/?depth=5&nested=True"
+      );
 
       if (res) {
         setRecent_orders(res);
@@ -89,10 +66,43 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchMatrix();
+    fetchPayments();
     fetchRecentOrders();
   }, [tenantAPI]);
 
-  console.log("Dashboard", user, recent_orders);
+  useEffect(() => {
+    if (matrix?.product_with_lowest_stock?.length > 0) {
+      setlow_stock(true);
+    }
+  }, [matrix]);
+
+  const confirmOrder = async (order) => {
+    try {
+      const res = await tenantAPI.patch(
+        `/store-owner/order/?pk=${order?.id}&mark_accepted=true`
+      );
+      if (res) {
+        fetchRecentOrders();
+        fetchMatrix();
+        setopenDrawer(false);
+      }
+    } catch (error) {}
+  };
+
+  const cancelOrder = async (order) => {
+    try {
+      const res = await tenantAPI.patch(
+        `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
+      );
+      if (res) {
+        fetchRecentOrders();
+        fetchMatrix();
+        setopenDrawer(false);
+      }
+    } catch (error) {}
+  };
+
+  console.log("Dashboard", products, recent_orders);
 
   return (
     <div className="container tenant-container">
@@ -110,7 +120,7 @@ export default function Dashboard() {
               <p>Total Products</p>
             </div>
 
-            <h6 className="value">5000</h6>
+            <h6 className="value">{matrix?.total_products ?? 0}</h6>
           </div>
 
           <div className="stats">
@@ -121,7 +131,7 @@ export default function Dashboard() {
               <p>Total Clients</p>
             </div>
 
-            <h6 className="value">50</h6>
+            <h6 className="value">{matrix?.total_clients ?? 0}</h6>
           </div>
 
           <div className="stats">
@@ -132,7 +142,7 @@ export default function Dashboard() {
               <p>Pending Orders</p>
             </div>
 
-            <h6 className="value">5</h6>
+            <h6 className="value">{matrix?.pending_orders ?? 0}</h6>
           </div>
 
           <div className="stats">
@@ -143,12 +153,14 @@ export default function Dashboard() {
               <p>Plan Expiry</p>
             </div>
 
-            <h6 className="value">12 March 2026</h6>
+            <h6 className="value">
+              {moment(matrix?.plan_expiry).format("D MMM YYYY")}
+            </h6>
           </div>
         </div>
 
         <div className="warnings">
-          {out_of_stock && (
+          {matrix?.product_with_zero_stock_list?.length > 0 && (
             <div className="out-of-stock">
               <div className="icon-container">
                 <img src="/icons/danger.svg" alt="" />
@@ -156,14 +168,18 @@ export default function Dashboard() {
 
               <div className="content">
                 <h6>Out of Stock</h6>
-                <p>Your inventory has 10 products with no stock left.</p>
+                <p>
+                  Your inventory has{" "}
+                  {matrix?.product_with_zero_stock_list?.length} products with
+                  no stock left.
+                </p>
 
                 <Link href={"#"}>View Items</Link>
               </div>
             </div>
           )}
 
-          {low_stock && (
+          {low_stock > 0 && (
             <div className="low-stock">
               <div className="icon-container">
                 <img src="/icons/warning.svg" alt="" />
@@ -183,45 +199,89 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="recent-orders">
+        <div className="top-outstandings">
           <div className="title">
-            <h4>Recent Orders</h4>
-            <Link href={"#"}>View all</Link>
+            <h4>Top Outstanding</h4>
           </div>
 
-          <div className="orders">
-            {recent_orders?.results?.map((item, i) => (
-              <div className="order-widget" key={i}>
-                <h6 className="line-clamp-1">
-                  {item?.api_generate_invoice?.[0]?.client_name}
-                </h6>
-
-                <div className="order-details">
-                  <div className="detail">
-                    <p className="price">₹{item?.total_price}</p>
-                    <p>
-                      {item?.api_generate_invoice?.[0]?.items?.length} items
-                    </p>
+          <div className="outstandings">
+            {clientPayments?.map((item, i) => (
+              <div className="out-standing-widget" key={item?.id}>
+                <div className="details">
+                  <div className="info">
+                    <p>{item?.client?.name}</p>
+                    <span>
+                      Total Buy: ₹
+                      {Number(item?.client?.api_total_buy[0]).toLocaleString()}
+                    </span>
                   </div>
 
-                  <div
-                    className="blue-cta"
-                    onClick={() => {
-                      setselectedOrder(item);
-                      setopenDrawer(true);
-                    }}
-                  >
-                    View Order
+                  <div className="outstanding">
+                    <p>
+                      ₹
+                      {Number(
+                        item?.client?.api_total_outstanding_amount[0]
+                      ).toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
-                <div className="date">
-                  <p>{moment(item?.created_at).format("DD MMM YYYY")}</p>
+                <div className="actions">
+                  <button className="white-cta">
+                    <BellIcon />
+                    Remind
+                  </button>
+                  <a href={`tel:${item?.client?.phone_number}`}>
+                    <button className="blue-cta">
+                      <Call />
+                      Call
+                    </button>
+                  </a>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {recent_orders?.results?.length > 0 && (
+          <div className="recent-orders">
+            <div className="title">
+              <h4>Recent Orders</h4>
+              <Link href={"#"}>View all</Link>
+            </div>
+
+            <div className="orders">
+              {recent_orders?.results?.map((item, i) => (
+                <div className="order-widget" key={i}>
+                  <h6 className="line-clamp-1">
+                    {item?.api_client?.[0]?.fields?.name}
+                  </h6>
+
+                  <div className="order-details">
+                    <div className="detail">
+                      <p className="price">₹{item?.total_price}</p>
+                      <p>{item?.api_order_item?.length} items</p>
+                    </div>
+
+                    <div
+                      className="blue-cta"
+                      onClick={() => {
+                        setselectedOrder(item);
+                        setopenDrawer(true);
+                      }}
+                    >
+                      View Order
+                    </div>
+                  </div>
+
+                  <div className="date">
+                    <p>{moment(item?.created_at).format("DD MMM YYYY")}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <SwipeableDrawer
           anchor={is_mobile ? "bottom" : "right"}
@@ -257,9 +317,7 @@ export default function Dashboard() {
             <div className="stats">
               <div className="stat">
                 <p>Total Items</p>
-                <span>
-                  {selectedOrder?.api_generate_invoice?.[0]?.items?.length}
-                </span>
+                <span>{selectedOrder?.api_order_item?.length}</span>
               </div>
 
               <div className="stat">
@@ -274,42 +332,62 @@ export default function Dashboard() {
               <h6>Order Details</h6>
 
               <div className="orders">
-                {selectedOrder?.api_generate_invoice?.[0]?.items?.map(
-                  (item, i) => (
+                {selectedOrder?.api_order_item?.map((item, i) => {
+                  const product = products?.find(
+                    (p) => p.id === item?.fields.product
+                  );
+                  const category = categories?.find(
+                    (c) => c.id === product?.category
+                  );
+
+                  return (
                     <div className="product-detail-widget" key={i}>
                       <div className="product-detail">
-                        <span>{item?.product_category}</span>
-                        <p>{item?.product}</p>
+                        <span>{category?.name}</span>
+                        <p>{product?.name}</p>
                       </div>
 
                       <div className="price-detail">
                         <p>
-                          ₹{item?.amount} x {item?.quantity}pcs
+                          ₹{item.fields?.price} x {item.fields?.quantity}pcs
                         </p>
-                        <span>₹{item?.amount * item?.quantity}</span>
+                        <span>
+                          ₹{item.fields?.price * item.fields?.quantity}
+                        </span>
                       </div>
                     </div>
-                  )
-                )}
+                  );
+                })}
               </div>
             </div>
 
             <div className="contact-details">
-              <h6>Shree Mobile Parts</h6>
-              <span>Mumbai, Maharashtra</span>
-
-              <div className="numbers">
-                <p>+91 9653690236</p>
-                <p>+91 8828163421</p>
-              </div>
+              <h6>{selectedOrder?.api_client?.[0]?.fields?.name}</h6>
+              <span>
+                +91 {selectedOrder?.api_client?.[0]?.fields?.phone_number}
+              </span>
 
               <div className="btns">
-                <button className="white-cta">
+                <button
+                  className="red-cta"
+                  onClick={() => cancelOrder(selectedOrder)}
+                >
                   <div className="icon-container">
-                    <img src="/icons/call.svg" alt="" />
+                    <img src="/icons/close.svg" alt="" />
                   </div>
-                  Call
+                  Cancel
                 </button>
+
+                <a
+                  href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
+                >
+                  <button className="white-cta">
+                    <div className="icon-container">
+                      <img src="/icons/call.svg" alt="" />
+                    </div>
+                    Call
+                  </button>
+                </a>
 
                 <button className="blue-cta">
                   <div className="icon-container">
@@ -321,9 +399,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bottom-btn">
-            <button className="white-cta">Confirm Order</button>
-          </div>
+          {selectedOrder?.status === "accepted" ? (
+            <div className="bottom-btn confirmed">
+              <button className="white-cta">Order Confirmed</button>
+            </div>
+          ) : (
+            <div className="bottom-btn">
+              <button
+                className="white-cta"
+                onClick={() => confirmOrder(selectedOrder)}
+              >
+                Confirm Order
+              </button>
+            </div>
+          )}
         </SwipeableDrawer>
       </div>
     </div>
