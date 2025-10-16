@@ -11,9 +11,10 @@ import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { menuConfig } from "@/configs/menuConfigs";
 import { usePathname } from "next/navigation";
+import { LinkIcon } from "lucide-react";
 
 const SideNav = () => {
-  const { user, permissions, logout } = useContext(AuthContext);
+  const { permissions, logout } = useContext(AuthContext);
   const pathName = usePathname();
 
   // Get the menu items for the user's role
@@ -41,6 +42,41 @@ const SideNav = () => {
       setTimeout(() => {
         content.style.height = "0px"; // Transition to 0 height
       }, 0);
+    }
+  };
+
+  const handleShareLink = async () => {
+    try {
+      // Get current hostname and protocol dynamically
+      const { protocol, host } = window.location;
+
+      // If your tenant info is available in code, extract it
+      // Example: if you're on tenant1.localhost:3000, the subdomain is "tenant1"
+      const tenant = host.split(".")[0];
+
+      // Construct the base URL
+      const shareUrl = `${protocol}//${tenant}.${host
+        .split(".")
+        .slice(1)
+        .join(".")}/`;
+
+      // If you have a backend-derived tenant slug or variable, use it instead:
+      // const shareUrl = `${protocol}//${tenantSlug}.${window.location.host}/`;
+
+      if (navigator.share) {
+        // Use the Web Share API (mobile friendly)
+        await navigator.share({
+          title: "Visit our store!",
+          text: `Check out ${tenant}'s store!`,
+          url: shareUrl,
+        });
+      } else {
+        // Fallback for browsers that don’t support navigator.share
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Link copied to clipboard!");
+      }
+    } catch (error) {
+      console.error("Error sharing link:", error);
     }
   };
 
@@ -93,6 +129,11 @@ const SideNav = () => {
       menu.removeEventListener("wheel", handleWheel);
     };
   }, []);
+
+  useEffect(() => {
+    // Close the side menu on route change
+    setSideMenuOpen(false);
+  }, [pathName]);
 
   return (
     <>
@@ -186,14 +227,17 @@ const SideNav = () => {
                       className="icon"
                       dangerouslySetInnerHTML={{ __html: item?.icon }}
                     ></span>
-                    {isSideMenuOpen && (
-                      <span className="name">{item.title}</span>
-                    )}
+                    <span className="name">{item.title}</span>
                   </Link>
                 )}
               </li>
             );
           })}
+
+          <li className={`menu-item`} onClick={handleShareLink}>
+            <LinkIcon />
+            <span className="name">Share Link</span>
+          </li>
         </ul>
 
         <div className="bottom">

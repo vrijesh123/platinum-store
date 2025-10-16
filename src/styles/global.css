@@ -2320,75 +2320,6 @@ section {
     padding-right: 20px;
   }
 }
-.top-nav-container .top-nav .notification {
-  margin: auto 20px;
-  position: relative;
-}
-@media screen and (max-width: 768px) {
-  .top-nav-container .top-nav .notification {
-    display: none;
-  }
-}
-.top-nav-container .top-nav .notification button {
-  padding: 0;
-  cursor: pointer;
-  background: none;
-  border: none;
-}
-.top-nav-container .top-nav .notification .notification-container {
-  position: absolute;
-  top: 40px;
-  right: -100px;
-  width: 400px;
-  max-height: 700px;
-  overflow-y: scroll;
-  border: 1px solid #E6E6E6;
-  border-radius: 5px;
-  background-color: #2C2C2C;
-  padding: 0;
-}
-.top-nav-container .top-nav .notification .notification-container .notification-list .notification-item {
-  cursor: pointer;
-  padding: 10px;
-  transition: 0.1s all ease-in;
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  padding-bottom: 10px;
-  padding-top: 20px;
-  border-bottom: 1px solid #E6E6E6;
-}
-.top-nav-container .top-nav .notification .notification-container .notification-list .notification-item img {
-  width: 20px;
-  height: 20px;
-  margin-top: 5px;
-}
-.top-nav-container .top-nav .notification .notification-container .notification-list .notification-item:hover {
-  background-color: #3b3b3b;
-}
-.top-nav-container .top-nav .notification .notification-container .notification-list .show-all-button {
-  color: #B3B3B3;
-  text-align: center;
-  width: 100%;
-  padding: 10px;
-  transition: 0.1s all ease-in;
-}
-.top-nav-container .top-nav .notification .notification-container .notification-list .show-all-button:hover {
-  background-color: #3b3b3b;
-}
-.top-nav-container .top-nav .notification .notification-container .no-notifications-message {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-}
-.top-nav-container .top-nav .notification .notification-container .no-notifications-message .img-container {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 10px;
-}
 .top-nav-container .top-nav .profile {
   display: flex;
   align-items: center;
@@ -2399,16 +2330,14 @@ section {
 .top-nav-container .top-nav .profile .img-container {
   width: 50px;
   height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 @media screen and (max-width: 768px) {
   .top-nav-container .top-nav .profile .img-container {
     width: 36px;
     height: 36px;
   }
-}
-.top-nav-container .top-nav .profile .img-container img {
-  border: 1px solid #fff;
-  border-radius: 100%;
 }
 .top-nav-container .top-nav .profile .user-info {
   display: flex;

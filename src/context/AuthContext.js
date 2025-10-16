@@ -4,13 +4,11 @@ import { LogoutApi, userLoginAPI, userSignUpAPI } from '@/api/adminApi';
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
-import { useTenantAPI } from '@/hooks/useTenantAPI';
 import { getSubdomain } from '@/utils/commonUtils';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const { tenantAPI } = useTenantAPI();
 
     const [user, setUser] = useState(null);
     const [permissions, setPermissions] = useState([]);

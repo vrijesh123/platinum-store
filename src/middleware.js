@@ -71,23 +71,7 @@ export async function middleware(req) {
         return NextResponse.rewrite(`${origin}/404`);
     }
 
-    // 5) Your “/ → login vs. dashboard” logic
-    // function handleAuthRedirects() {
-    //     if (pathname === '/') {
-    //         // reconstruct host for redirect (preserves port in dev)
-    //         let targetHost = host;
-    //         // if we’re on “localhost” without subdomain, you might want to
-    //         // skip tenant logic altogether—but here we assume tenant.localhost:3000
-    //         if (!isLocalhostPattern && hostParts.length < 2) {
-    //             return NextResponse.next();
-    //         }
 
-    //         // go to dashboard if token exists, else login
-    //         const destPath = token ? '/dashboard' : '/login';
-    //         return NextResponse.redirect(`${url.protocol}//${targetHost}${destPath}`);
-    //     }
-    //     return NextResponse.next();
-    // }
     function handleAuthRedirects() {
         // Only redirect on homepage to avoid infinite loops
         if (pathname === '/') {

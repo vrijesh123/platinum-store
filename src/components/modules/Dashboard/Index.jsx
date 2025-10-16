@@ -28,11 +28,9 @@ export default function Dashboard() {
   const [selectedOrder, setselectedOrder] = useState(null);
   const [low_stock, setlow_stock] = useState(true);
 
-  const [clientPayments, setclientPayments] = useState(null);
-
   const fetchMatrix = async () => {
     try {
-      const res = await tenantAPI.get("/store-owner/matrix");
+      const res = await tenantAPI.get("/store-owner/matrix?stats=all");
 
       if (res) {
         setmatrix(res);
@@ -40,22 +38,10 @@ export default function Dashboard() {
     } catch (error) {}
   };
 
-  const fetchPayments = async () => {
-    try {
-      const res = await tenantAPI.get(
-        "/store-owner/client-payment/?depth=3&nested=True&page_size=1000"
-      );
-
-      if (res) {
-        setclientPayments(res?.results);
-      }
-    } catch (error) {}
-  };
-
   const fetchRecentOrders = async () => {
     try {
       const res = await tenantAPI.get(
-        "/store-owner/order/?depth=5&nested=True"
+        "/store-owner/order/?depth=5&nested=True&order_by=-created_at"
       );
 
       if (res) {
@@ -66,13 +52,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchMatrix();
-    fetchPayments();
     fetchRecentOrders();
   }, [tenantAPI]);
 
   useEffect(() => {
-    if (matrix?.product_with_lowest_stock?.length > 0) {
+    if (matrix?.product_with_lowest_stock?.some((item) => item?.stock <= 10)) {
       setlow_stock(true);
+    } else {
+      setlow_stock(false);
     }
   }, [matrix]);
 
@@ -102,7 +89,7 @@ export default function Dashboard() {
     } catch (error) {}
   };
 
-  console.log("Dashboard", products, recent_orders);
+  console.log("Dashboard");
 
   return (
     <div className="container tenant-container">
@@ -174,7 +161,7 @@ export default function Dashboard() {
                   no stock left.
                 </p>
 
-                <Link href={"#"}>View Items</Link>
+                <Link href={"/products"}>View Items</Link>
               </div>
             </div>
           )}
@@ -189,7 +176,7 @@ export default function Dashboard() {
                 <h6>Low Stock Alert</h6>
                 <p>Few items in your inventory will go out of stock Soon</p>
 
-                <Link href={"#"}>View Items</Link>
+                <Link href={"/products"}>View Items</Link>
               </div>
 
               <button className="close" onClick={() => setlow_stock(false)}>
@@ -205,24 +192,24 @@ export default function Dashboard() {
           </div>
 
           <div className="outstandings">
-            {clientPayments?.map((item, i) => (
+            {matrix?.client_by_top_outstanding?.map((item, i) => (
               <div className="out-standing-widget" key={item?.id}>
                 <div className="details">
                   <div className="info">
-                    <p>{item?.client?.name}</p>
+                    <p>{item?.name}</p>
                     <span>
-                      Total Buy: ₹
-                      {Number(item?.client?.api_total_buy[0]).toLocaleString()}
+                      Total Buy: ₹{Number(item?.total_order).toLocaleString()}
+                    </span>
+                    <br />
+
+                    <span style={{ color: "#2142FF" }}>
+                      Total Payment: ₹
+                      {Number(item?.total_payment).toLocaleString()}
                     </span>
                   </div>
 
                   <div className="outstanding">
-                    <p>
-                      ₹
-                      {Number(
-                        item?.client?.api_total_outstanding_amount[0]
-                      ).toLocaleString()}
-                    </p>
+                    <p>₹{Number(item?.outstanding).toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -231,7 +218,7 @@ export default function Dashboard() {
                     <BellIcon />
                     Remind
                   </button>
-                  <a href={`tel:${item?.client?.phone_number}`}>
+                  <a href={`tel:${item?.phone_number}`}>
                     <button className="blue-cta">
                       <Call />
                       Call
@@ -247,7 +234,7 @@ export default function Dashboard() {
           <div className="recent-orders">
             <div className="title">
               <h4>Recent Orders</h4>
-              <Link href={"#"}>View all</Link>
+              <Link href={"/order-history"}>View all</Link>
             </div>
 
             <div className="orders">
@@ -275,6 +262,18 @@ export default function Dashboard() {
                   </div>
 
                   <div className="date">
+                    <p
+                      style={{
+                        color:
+                          item?.status === "accepted"
+                            ? "#16A34A"
+                            : item?.status === "pending"
+                            ? "#FF7A06"
+                            : "#D43131",
+                      }}
+                    >
+                      {item?.status}
+                    </p>
                     <p>{moment(item?.created_at).format("DD MMM YYYY")}</p>
                   </div>
                 </div>
@@ -368,15 +367,17 @@ export default function Dashboard() {
               </span>
 
               <div className="btns">
-                <button
-                  className="red-cta"
-                  onClick={() => cancelOrder(selectedOrder)}
-                >
-                  <div className="icon-container">
-                    <img src="/icons/close.svg" alt="" />
-                  </div>
-                  Cancel
-                </button>
+                {selectedOrder?.status === "pending" && (
+                  <button
+                    className="red-cta"
+                    onClick={() => cancelOrder(selectedOrder)}
+                  >
+                    <div className="icon-container">
+                      <img src="/icons/close.svg" alt="" />
+                    </div>
+                    Cancel
+                  </button>
+                )}
 
                 <a
                   href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
@@ -393,7 +394,7 @@ export default function Dashboard() {
                   <div className="icon-container">
                     <img src="/icons/task-square.svg" alt="" />
                   </div>
-                  Send Invoice
+                  Invoice
                 </button>
               </div>
             </div>
@@ -402,6 +403,10 @@ export default function Dashboard() {
           {selectedOrder?.status === "accepted" ? (
             <div className="bottom-btn confirmed">
               <button className="white-cta">Order Confirmed</button>
+            </div>
+          ) : selectedOrder?.status === "canceled" ? (
+            <div className="bottom-btn canceled">
+              <button className="white-cta">Order Canceled</button>
             </div>
           ) : (
             <div className="bottom-btn">

@@ -43,10 +43,11 @@ export const CategoryProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (user) {
+        const token = Cookies.get('access_token');
+        if (token) {
             fetch_category();
         }
-    }, [tenantAPI, user]);
+    }, [tenantAPI]);
 
     return (
         <ProductCategory.Provider value={{ categories, setCategories }}>

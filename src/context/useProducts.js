@@ -43,10 +43,11 @@ export const ProductsProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (user) {
+        const token = Cookies.get('access_token');
+        if (token) {
             fetch_products();
         }
-    }, [tenantAPI, user]);
+    }, [tenantAPI]);
 
     return (
         <Products.Provider value={{ products, setProducts }}>

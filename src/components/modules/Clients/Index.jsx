@@ -2,10 +2,11 @@ import GlobalForm from "@/components/global_components/GlobalForm";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { Call } from "@mui/icons-material";
-import { SwipeableDrawer } from "@mui/material";
+import { CircularProgress, SwipeableDrawer } from "@mui/material";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 const form_json = [
   {
@@ -34,27 +35,82 @@ const form_json = [
 
 const Clients = () => {
   const is_mobile = useMediaQuery("(max-width: 900px)");
-  const router = useRouter();
-
   const { tenantAPI } = useTenantAPI();
+  const router = useRouter();
+  const observerRef = useRef();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [openDrawer, setopenDrawer] = useState(false);
+
+  const [nextPageUrl, setNextPageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
 
-  const fetchClients = async () => {
-    try {
-      const res = await tenantAPI.get("/store-owner/client/");
+  const [openEdit, setopenEdit] = useState(false);
+  const [editClient, setEditClient] = useState(null);
 
-      if (res) {
-        setClients(res);
-      }
-    } catch (error) {}
+  const [openMenu, setOpenMenu] = useState(null); // track which client's menu is open
+
+  const handleMenuToggle = (index) => {
+    setOpenMenu(openMenu === index ? null : index);
   };
 
+  // ✅ Fetch clients (supports pagination + search)
+  const fetchClients = useCallback(
+    async (pageUrl = null, isLoadMore = false, search = "") => {
+      try {
+        setLoading(true);
+
+        let url =
+          pageUrl ||
+          `/store-owner/client/?order_by=-created_at&page=1${
+            search ? `&name=${encodeURIComponent(search)}` : ""
+          }`;
+
+        const res = await tenantAPI.get(url);
+        const newClients = res?.results || [];
+
+        setClients((prev) =>
+          isLoadMore ? [...prev, ...newClients] : newClients
+        );
+        setNextPageUrl(res?.links?.next);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+        setLoading(false);
+      }
+    },
+    [tenantAPI]
+  );
+
+  // ✅ Initial fetch
   useEffect(() => {
-    fetchClients();
+    fetchClients(null, false, searchTerm);
   }, [tenantAPI]);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    fetchClients(null, false, term);
+  };
+
+  // ✅ Infinite scroll observer
+  const lastClientRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && nextPageUrl) {
+          console.log("Loading more clients...");
+          fetchClients(nextPageUrl, true, searchTerm);
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [loading, nextPageUrl, searchTerm]
+  );
 
   const handleSubmit = async (values, resetForm) => {
     try {
@@ -65,7 +121,36 @@ const Clients = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setopenDrawer();
+      setopenDrawer(false);
+    }
+  };
+
+  const handleEdit = async (values, resetForm) => {
+    try {
+      await tenantAPI.patch(`/store-owner/client/?pk=${values?.id}`, {
+        name: values?.name,
+        phone_number: values?.phone_number,
+      });
+
+      resetForm();
+      fetchClients();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setopenEdit(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await tenantAPI.delete(`/store-owner/client/?pk=${id}`);
+
+      setClients((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Client deleted successfully");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setOpenMenu(null);
     }
   };
 
@@ -104,39 +189,89 @@ const Clients = () => {
         </div>
 
         <div className="clients">
-          {clients?.results?.map((item, i) => (
-            <div className="client-widget" key={i}>
-              <div className="left">
-                <h6>{item?.name}</h6>
+          {clients?.map((item, i) => {
+            const isLast = i === clients.length - 1;
+            return (
+              <div
+                className="client-widget"
+                key={item.id || i}
+                ref={isLast ? lastClientRef : null}
+              >
+                <div className="left">
+                  <h6>{item?.name}</h6>
 
-                <div className="business-details">
-                  <p style={{ color: "#2142FF" }}>
-                    Total Orders: {item?.api_total_orders?.[0]}
-                  </p>
-                  <p style={{ color: "#16A34A" }}>
-                    Total Buy: ₹{item?.api_total_buy?.[0]}
-                  </p>
-                  <p style={{ color: "#D43131" }}>
-                    Outstandings: ₹{item?.api_total_buy?.[0]}
-                  </p>
+                  <div className="business-details">
+                    <p>Total Orders: {item?.api_total_orders?.[0]}</p>
+                    <p style={{ color: "#16A34A" }}>
+                      Total Buy: ₹{item?.api_total_buy?.[0]}
+                    </p>
+                    <p style={{ color: "#D43131" }}>
+                      Outstandings: ₹{item?.api_total_buy?.[0]}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="actions">
+                  <button
+                    className="option"
+                    onClick={() => handleMenuToggle(i)}
+                  >
+                    <img src="/icons/options.svg" alt="" />
+                  </button>
+
+                  {openMenu === i && (
+                    <div className="dropdown-menu">
+                      <button
+                        onClick={() => {
+                          const edit_data = {
+                            id: item?.id,
+                            name: item?.name,
+                            phone_number: item?.phone_number,
+                          };
+                          setEditClient(edit_data);
+                          setopenEdit(true);
+                          setOpenMenu(null);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(item?.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="right">
+                  <button
+                    className="white-cta"
+                    onClick={() => router.push(`/order-history/${item?.user}`)}
+                  >
+                    Order History
+                  </button>
+                  <a href={`tel:${item?.phone_number}`}>
+                    <button className="blue-cta">
+                      <Call /> Call
+                    </button>
+                  </a>
                 </div>
               </div>
+            );
+          })}
 
-              <div className="right">
-                <button
-                  className="white-cta"
-                  onClick={() => router.push(`/order-history/${item?.user}`)}
-                >
-                  Order History
-                </button>
-                <a href={`tel:${item?.phone_number}`}>
-                  <button className="blue-cta">
-                    <Call /> Call
-                  </button>
-                </a>
-              </div>
-            </div>
-          ))}
+          {/* ✅ Loading indicator */}
+          {loading && (
+            <p style={{ textAlign: "center", marginTop: "1rem" }}>
+              <CircularProgress />
+            </p>
+          )}
+
+          {/* ✅ No data */}
+          {!loading && clients?.length === 0 && (
+            <p style={{ textAlign: "center", marginTop: "1rem" }}>
+              No clients found.
+            </p>
+          )}
         </div>
       </div>
 
@@ -179,10 +314,48 @@ const Clients = () => {
             spacing={1}
           ></GlobalForm>
         </div>
+      </SwipeableDrawer>
 
-        {/* <div className="bottom-btn">
-          <button className="white-cta">Save</button>
-        </div> */}
+      <SwipeableDrawer
+        anchor={is_mobile ? "bottom" : "right"}
+        open={openEdit}
+        onOpen={() => setopenEdit(true)}
+        onClose={() => setopenEdit(false)}
+        disableSwipeToOpen={false}
+        PaperProps={{
+          sx: {
+            borderTopLeftRadius: 5,
+            borderTopRightRadius: 5,
+            height: { lg: "100vh", md: "95vh" },
+            color: "#fff",
+            width: { lg: "45vw", md: "100vw" },
+            padding: "16px",
+          },
+        }}
+      >
+        {/* drag handle */}
+        {is_mobile && (
+          <div
+            style={{
+              width: 44,
+              height: 4,
+              borderRadius: 2,
+              margin: "10px auto",
+              background: "rgba(0,0,0, .7)",
+              position: "relative",
+            }}
+          />
+        )}
+
+        <div className="add-client-container">
+          <GlobalForm
+            form_config={form_json}
+            editingValues={editClient}
+            on_Submit={handleEdit}
+            btnClassName={"blue-cta"}
+            spacing={1}
+          ></GlobalForm>
+        </div>
       </SwipeableDrawer>
     </div>
   );

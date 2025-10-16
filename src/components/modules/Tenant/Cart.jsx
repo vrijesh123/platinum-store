@@ -9,10 +9,12 @@ import {
   IconButton,
 } from "@mui/material";
 import { PlusIcon } from "lucide-react";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const Cart = () => {
+  const router = useRouter();
   const { tenantAPI } = useTenantAPI();
   const [cart, setCart] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -144,9 +146,9 @@ const Cart = () => {
         });
       }
 
-      fetchCartItems();
       setshowSummary(false);
       toast.success("Order placed successfully!");
+      router.back();
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Error placing order" + error.message);

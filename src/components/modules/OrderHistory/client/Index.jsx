@@ -1,6 +1,9 @@
+import { ReceiptPDF } from "@/components/global_components/components/ReceiptPDF";
+import { useProductCategory } from "@/context/useCategory";
+import { useProducts } from "@/context/useProducts";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
-import { Close } from "@mui/icons-material";
+import { Close, East, West } from "@mui/icons-material";
 import {
   Box,
   CircularProgress,
@@ -17,6 +20,7 @@ import {
   SwipeableDrawer,
   TextField,
 } from "@mui/material";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -26,19 +30,24 @@ const ClientOrderHistory = () => {
   const router = useRouter();
   const { id } = router.query;
 
+  const { products } = useProducts();
+  const { categories } = useProductCategory();
+
   const is_mobile = useMediaQuery("(max-width: 900px)");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [openDrawer, setopenDrawer] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [paymentLoading, setpaymentLoading] = useState(false);
 
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [totalOrderAmount, setTotalOrderAmount] = useState(0);
   const [orders, setOrders] = useState([]);
 
   const [selectedOrder, setselectedOrder] = useState(null);
-  const [access, setAccess] = useState(true);
+
+  const [isClientBlocked, setIsCLientBlocked] = useState(true);
 
   const [openPunch, setOpenPunch] = useState(false);
   const [amount, setAmount] = useState("");
@@ -55,6 +64,7 @@ const ClientOrderHistory = () => {
 
       if (res) {
         setClient(res?.results[0] || null);
+        setIsCLientBlocked(res?.results[0]?.blocked || false);
       }
     } catch (error) {}
   };
@@ -62,7 +72,7 @@ const ClientOrderHistory = () => {
   const fetchPayments = async () => {
     try {
       const res = await tenantAPI.get(
-        `/store-owner/client-payment/?user=${id}&page_size=1000`
+        `/store-owner/client-payment/?user=${id}&page_size=1000&order_by=-created_at`
       );
 
       if (res) {
@@ -70,34 +80,6 @@ const ClientOrderHistory = () => {
       }
     } catch (error) {}
   };
-
-  const payment_history = [
-    {
-      amount: 130000,
-      date: new Date(),
-      payment_method: "UPI",
-    },
-    {
-      amount: 130000,
-      date: new Date(),
-      payment_method: "Cash",
-    },
-    {
-      amount: 130000,
-      date: new Date(),
-      payment_method: "UPI",
-    },
-    {
-      amount: 130000,
-      date: new Date(),
-      payment_method: "UPI",
-    },
-    {
-      amount: 130000,
-      date: new Date(),
-      payment_method: "Bank",
-    },
-  ];
 
   const fetchOrders = useCallback(
     async (search = "", pageUrl = null, isLoadMore = false) => {
@@ -164,16 +146,77 @@ const ClientOrderHistory = () => {
     [loading, nextPageUrl]
   );
 
-  console.log("Orders", client, clientPayments);
+  const confirmOrder = async (order) => {
+    try {
+      const res = await tenantAPI.patch(
+        `/store-owner/order/?pk=${order?.id}&mark_accepted=true`
+      );
+      fetchPayments();
+      fetchOrders();
+      fetchClient();
+      setopenDrawer(false);
+    } catch (error) {}
+  };
+
+  const cancelOrder = async (order) => {
+    try {
+      const res = await tenantAPI.patch(
+        `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
+      );
+      setopenDrawer(false);
+    } catch (error) {}
+  };
+
+  const handleAccess = async (check) => {
+    try {
+      await tenantAPI.patch(`/store-owner/client/?pk=${client?.id}`, {
+        blocked: check,
+      });
+    } catch (error) {
+      console.error("Error updating client access:", error);
+    }
+  };
+
+  const punchPayment = async () => {
+    try {
+      await tenantAPI.post("/store-owner/client-payment/", {
+        user: client?.user,
+        amount: amount,
+        payment_method: paymentMode,
+      });
+
+      setAmount("");
+      setPaymentMode("");
+      setOpenPunch(false);
+      fetchPayments();
+      fetchClient();
+    } catch (error) {
+      console.error("Error punching payment:", error);
+    }
+  };
+
+  console.log("Orders", client, selectedOrder);
 
   return (
     <div className="container tenant-container">
-      <div className="title">
-        <h4>Order History</h4>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <button
+          style={{
+            border: "none",
+            background: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+          onClick={() => router.back()}
+          className="back-btn"
+        >
+          <West />
+        </button>
+        <h4>{client?.name ?? ""} Order History</h4>
       </div>
 
       <div className="order-history-container">
-        <div className="search-container">
+        {/* <div className="search-container">
           <div className="icon-container">
             <img src={"/icons/searchIcon.svg"} alt="" />
           </div>
@@ -189,7 +232,7 @@ const ClientOrderHistory = () => {
             }}
             className="search-input"
           />
-        </div>
+        </div> */}
 
         <div className="stats">
           <div className="stat">
@@ -206,9 +249,7 @@ const ClientOrderHistory = () => {
               ).toLocaleString()}
             </span>
           </div>
-        </div>
 
-        <div className="stats">
           <div className="stat paid">
             <p>Paid</p>
             <span>₹{client?.api_total_payment_amount?.[0] ?? 0}</span>
@@ -225,16 +266,21 @@ const ClientOrderHistory = () => {
             <p>Ordering Access</p>
             <span>Client can view your inventory and order.</span>
 
-            <div className={`status ${access ? "allowed" : "blocked"}`}>
-              <p>{access ? "Allowed" : "Blocked"}</p>
+            <div
+              className={`status ${isClientBlocked ? "blocked" : "allowed"}`}
+            >
+              <p>{isClientBlocked ? "Blocked" : "Allowed"}</p>
             </div>
           </div>
 
           <label class="switch">
             <input
               type="checkbox"
-              checked={access}
-              onChange={(e) => setAccess(e.target.checked)}
+              checked={!isClientBlocked}
+              onChange={(e) => {
+                setIsCLientBlocked(!e.target.checked);
+                handleAccess(!e.target.checked);
+              }}
             />
             <span class="slider round"></span>
           </label>
@@ -243,41 +289,97 @@ const ClientOrderHistory = () => {
         <div className="payment-history">
           <h6>Payment History</h6>
 
-          <div className="payments">
-            {clientPayments?.map((item, i) => (
-              <div className="payment-widget" key={item?.id}>
-                <div className="payment-details">
-                  <div className="amount">
-                    <p>₹{Number(item?.amount).toLocaleString()}</p>
-
-                    <div
-                      className={`payment-type ${
-                        item?.payment_method == "upi"
-                          ? "upi"
-                          : item?.payment_method == "cash"
-                          ? "cash"
-                          : "bank"
-                      }`}
-                    >
-                      {item?.payment_method}
-                    </div>
-                  </div>
-
-                  <p className="date">
-                    {moment(item?.created_at).format("DD MMM YYYY • HH:MM A")}
+          {paymentLoading ? (
+            <CircularProgress />
+          ) : (
+            <div className="payments">
+              <>
+                {clientPayments?.length <= 0 ? (
+                  <p style={{ textAlign: "center", marginTop: "1rem" }}>
+                    No payments made yet.
                   </p>
-                </div>
+                ) : (
+                  <>
+                    {clientPayments?.map((item, i) => (
+                      <div className="payment-widget" key={item?.id}>
+                        <div className="payment-details">
+                          <div className="amount">
+                            <p>₹{Number(item?.amount).toLocaleString()}</p>
 
-                <button className="white-cta">Receipt</button>
-              </div>
-            ))}
-          </div>
+                            <div
+                              className={`payment-type ${
+                                item?.payment_method == "upi"
+                                  ? "upi"
+                                  : item?.payment_method == "cash"
+                                  ? "cash"
+                                  : "bank"
+                              }`}
+                            >
+                              {item?.payment_method}
+                            </div>
+                          </div>
+
+                          <p className="date">
+                            {moment(item?.created_at).format(
+                              "DD MMM YYYY • HH:MM A"
+                            )}
+                          </p>
+                        </div>
+
+                        <PDFDownloadLink
+                          document={
+                            <ReceiptPDF
+                              data={{
+                                id: `PAYMENT-0${item?.id}`,
+                                date: `${moment(item?.created_at).format(
+                                  "DD MMM YYYY"
+                                )}`,
+                                paymentMode: `${
+                                  item?.payment_method || ""
+                                }`.toUpperCase(),
+                                billedTo: {
+                                  name: `${client?.name}`,
+                                  phone: `+91 ${client?.phone_number}`,
+                                },
+                                from: {
+                                  name: "Panda, Inc",
+                                  address:
+                                    "Business address, City, State, IN – 000 000",
+                                },
+                                paymentReceived: Number(item?.amount) || 0,
+                                totalAmount:
+                                  Number(client?.api_total_order_amount?.[0]) ||
+                                  0,
+                                balance:
+                                  Number(
+                                    client?.api_total_outstanding_amount?.[0]
+                                  ) || 0,
+                              }}
+                            />
+                          }
+                          fileName={`receipt-${item.id}.pdf`}
+                        >
+                          {({ loading }) => (
+                            <button className="white-cta">
+                              {loading ? "Generating PDF..." : "Receipt"}
+                            </button>
+                          )}
+                        </PDFDownloadLink>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
+            </div>
+          )}
 
           <div className="actions">
             <button className="blue-cta" onClick={() => setOpenPunch(true)}>
               Punch Payment
             </button>
-            <button className="white-cta">Share Statement</button>
+            {clientPayments?.length > 0 && (
+              <button className="white-cta">Share Statement</button>
+            )}
           </div>
 
           <Dialog
@@ -352,12 +454,18 @@ const ClientOrderHistory = () => {
                   fontWeight: 500,
                 }}
               >
-                Remaining after this payment: ₹ 200000
+                Remaining after this payment: ₹{" "}
+                {client?.api_total_outstanding_amount?.[0] -
+                  (amount ? parseFloat(amount) : 0)}
               </Box>
             </DialogContent>
 
             <DialogActions sx={{ mt: 2, p: 0 }}>
-              <button className="blue-cta" style={{ width: "100%" }}>
+              <button
+                className="blue-cta"
+                style={{ width: "100%" }}
+                onClick={punchPayment}
+              >
                 Save Payment
               </button>
             </DialogActions>
@@ -453,9 +561,7 @@ const ClientOrderHistory = () => {
           <div className="stats">
             <div className="stat">
               <p>Total Items</p>
-              <span>
-                {selectedOrder?.api_generate_invoice?.[0]?.items?.length}
-              </span>
+              <span>{selectedOrder?.api_order_item?.length}</span>
             </div>
 
             <div className="stat">
@@ -470,51 +576,76 @@ const ClientOrderHistory = () => {
             <h6>Order Details</h6>
 
             <div className="orders">
-              {selectedOrder?.api_generate_invoice?.[0]?.items?.map(
-                (record, i) => (
+              {selectedOrder?.api_order_item?.map((item, i) => {
+                const product = products?.find(
+                  (p) => p.id === item?.fields.product
+                );
+                const category = categories?.find(
+                  (c) => c.id === product?.category
+                );
+
+                console.log("Product", product, products);
+
+                return (
                   <div className="product-detail-widget" key={i}>
                     <div className="product-detail">
-                      <span>{record?.product_category}</span>
-                      <p>{record?.product}</p>
+                      <span>{category?.name}</span>
+                      <p>{product?.name}</p>
                     </div>
 
                     <div className="price-detail">
                       <p>
-                        ₹{record?.amount} x {record?.quantity}pcs
+                        ₹{item.fields?.price} x {item.fields?.quantity}pcs
                       </p>
-                      <span>₹{record?.amount * record?.quantity}</span>
+                      <span>₹{item.fields?.price * item.fields?.quantity}</span>
                     </div>
                   </div>
-                )
-              )}
-
-              <div className="total">
-                <div className="subtotal">
-                  <p>Subtotal:</p>
-                  <p>₹{selectedOrder?.total_price}</p>
-                </div>
-                <div className="grandtotal">
-                  <strong>Grand Total:</strong>
-                  <strong style={{ color: "#16A34A" }}>
-                    ₹{selectedOrder?.total_price}
-                  </strong>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 
           <div className="contact-details">
             <div className="btns">
-              <button className="white-cta">Download Invoice</button>
+              {selectedOrder?.status === "pending" && (
+                <button
+                  className="red-cta"
+                  onClick={() => cancelOrder(selectedOrder)}
+                >
+                  <div className="icon-container">
+                    <img src="/icons/close.svg" alt="" />
+                  </div>
+                  Cancel
+                </button>
+              )}
 
               <button className="blue-cta">
                 <div className="icon-container">
                   <img src="/icons/task-square.svg" alt="" />
                 </div>
-                Send Invoice
+                Invoice
               </button>
             </div>
           </div>
+
+          {selectedOrder?.status === "accepted" ? (
+            <div className="bottom-btn confirmed">
+              <button className="white-cta">Order Confirmed</button>
+            </div>
+          ) : selectedOrder?.status === "canceled" ? (
+            <div className="bottom-btn canceled">
+              <button className="white-cta">Order Canceled</button>
+            </div>
+          ) : (
+            <div className="bottom-btn">
+              <button
+                className="white-cta"
+                onClick={() => confirmOrder(selectedOrder)}
+              >
+                Confirm Order
+              </button>
+            </div>
+          )}
         </div>
       </SwipeableDrawer>
     </div>

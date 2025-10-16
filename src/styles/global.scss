@@ -2617,89 +2617,6 @@ section {
             padding-right: 20px;
         }
 
-        .notification {
-            margin: auto 20px;
-            position: relative;
-
-            @media screen and (max-width: 768px) {
-                display: none;
-            }
-
-            button {
-                padding: 0;
-                cursor: pointer;
-                background: none;
-                border: none;
-            }
-
-            .notification-container {
-                position: absolute;
-                top: 40px;
-                right: -100px;
-                width: 400px;
-                max-height: 700px;
-                overflow-y: scroll;
-                border: 1px solid $border-color;
-                border-radius: 5px;
-                background-color: $grey;
-                padding: 0;
-
-                .notification-list {
-
-                    .notification-item {
-                        cursor: pointer;
-                        padding: 10px;
-                        transition: 0.1s all ease-in;
-                        display: flex;
-                        align-items: flex-start;
-                        gap: 20px;
-
-                        img {
-                            width: 20px;
-                            height: 20px;
-                            margin-top: 5px;
-                        }
-
-                        &:hover {
-                            background-color: #3b3b3b;
-                        }
-
-                        padding-bottom: 10px;
-                        padding-top: 20px;
-                        border-bottom: 1px solid $border-color;
-                    }
-
-                    .show-all-button {
-                        color: $table-font-color;
-                        text-align: center;
-                        width: 100%;
-                        padding: 10px;
-                        transition: 0.1s all ease-in;
-
-                        &:hover {
-                            background-color: #3b3b3b;
-                        }
-                    }
-                }
-
-                .no-notifications-message {
-                    padding: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                    text-align: center;
-
-                    .img-container {
-                        width: 200px;
-                        height: 200px;
-                        margin-bottom: 10px;
-                    }
-                }
-            }
-        }
-
-
         .profile {
             display: flex;
             align-items: center;
@@ -2710,15 +2627,12 @@ section {
             .img-container {
                 width: 50px;
                 height: 50px;
+                border-radius: 10px;
+                overflow: hidden;
 
                 @media screen and (max-width: 768px) {
                     width: 36px;
                     height: 36px;
-                }
-
-                img {
-                    border: 1px solid #fff;
-                    border-radius: 100%;
                 }
             }
 
