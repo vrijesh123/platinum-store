@@ -6,7 +6,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
   const router = useRouter();
 
-  console.log('Protected Route', allowedRoles, user)
 
   // useEffect(() => {
   //   if (!loading) {

@@ -102,7 +102,6 @@ const Clients = () => {
 
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && nextPageUrl) {
-          console.log("Loading more clients...");
           fetchClients(nextPageUrl, true, searchTerm);
         }
       });
@@ -153,8 +152,6 @@ const Clients = () => {
       setOpenMenu(null);
     }
   };
-
-  console.log("Clients", clients);
 
   return (
     <div className="container tenant-container">

@@ -45,8 +45,6 @@ const Products = () => {
 
       const res = await tenantAPI.get(url);
 
-      console.log("Fetched products:", res);
-
       const newProducts = res?.results || [];
 
       // merge for infinite scroll
@@ -135,7 +133,6 @@ const Products = () => {
 
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && nextPageUrl) {
-          console.log("Loading next page...");
           fetchProducts(selectedCategory, searchTerm, nextPageUrl, true);
         }
       });
@@ -212,8 +209,6 @@ const Products = () => {
       required: true,
     },
   ];
-
-  console.log("products", products, editProduct);
 
   return (
     <div className="container tenant-container">

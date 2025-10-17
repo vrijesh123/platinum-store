@@ -136,7 +136,6 @@ const ClientOrderHistory = () => {
 
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && nextPageUrl) {
-          console.log("Loading more orders...");
           fetchOrders(nextPageUrl, true);
         }
       });
@@ -194,8 +193,6 @@ const ClientOrderHistory = () => {
       console.error("Error punching payment:", error);
     }
   };
-
-  console.log("Orders", client, selectedOrder);
 
   return (
     <div className="container tenant-container">
@@ -583,8 +580,6 @@ const ClientOrderHistory = () => {
                 const category = categories?.find(
                   (c) => c.id === product?.category
                 );
-
-                console.log("Product", product, products);
 
                 return (
                   <div className="product-detail-widget" key={i}>

@@ -75,7 +75,6 @@ const OrderHistory = () => {
 
       observerRef.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && nextPageUrl) {
-          console.log("Loading more orders...");
           fetchOrders(nextPageUrl, true);
         }
       });
@@ -113,8 +112,6 @@ const OrderHistory = () => {
       setopenDrawer(false);
     } catch (error) {}
   };
-
-  console.log("Orders", orders);
 
   return (
     <div className="container tenant-container">

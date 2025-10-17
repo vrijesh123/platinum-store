@@ -1,10 +1,8 @@
 import React, { useContext, useState } from "react";
 import GlobalForm from "../global_components/GlobalForm";
-import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 
 const LandingPage = () => {
-  const router = useRouter();
   const { login } = useContext(AuthContext);
 
   const form_json = [
@@ -15,6 +13,7 @@ const LandingPage = () => {
       fullWidth: true,
       variant: "outlined",
       xs: 12,
+      placeholder: "Enter your email",
       validation_message: "Please enter email",
       required: true,
     },

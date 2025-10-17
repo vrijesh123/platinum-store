@@ -89,7 +89,7 @@ export default function Dashboard() {
     } catch (error) {}
   };
 
-  console.log("Dashboard", recent_orders);
+  // console.log("Dashboard", recent_orders);
 
   return (
     <div className="container tenant-container">

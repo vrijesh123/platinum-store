@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const Cart = () => {
@@ -19,6 +19,9 @@ const Cart = () => {
   const [cart, setCart] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [showSummary, setshowSummary] = useState(false);
+
+  // Store timeout IDs for each cart item
+  const debounceTimeouts = useRef({});
 
   const fetchCart = async () => {
     try {
@@ -73,9 +76,18 @@ const Cart = () => {
       )
     );
 
+    // Clear any previous timeout for this item
+    if (debounceTimeouts.current[cartId]) {
+      clearTimeout(debounceTimeouts.current[cartId]);
+    }
+
     const updatedItem = cartItems.find((item) => item.id === cartId);
     const newQty = Math.max(1, (updatedItem?.quantity || 1) + delta);
-    updateCartQuantity(cartId, newQty);
+
+    // Debounce API call (e.g., 500ms)
+    debounceTimeouts.current[cartId] = setTimeout(() => {
+      updateCartQuantity(cartId, newQty);
+    }, 500);
   };
 
   const handleQuantityInput = (cartId, value) => {
@@ -122,7 +134,7 @@ const Cart = () => {
       };
 
       const res = await tenantAPI.post(`/client/order/`, order);
-      console.log("Order placed:", res);
+
       if (res) {
         cartItems.forEach(async (item) => {
           // Reduce stock of each product
