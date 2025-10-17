@@ -148,7 +148,7 @@ const Cart = () => {
 
       setshowSummary(false);
       toast.success("Order placed successfully!");
-      router.back();
+      router.push("/tenant/store");
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Error placing order" + error.message);

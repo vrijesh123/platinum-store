@@ -285,10 +285,14 @@ const OrderHistory = () => {
           </div>
 
           <div className="contact-details">
-            <h6>{selectedOrder?.api_client?.[0]?.fields?.name}</h6>
-            <span>
-              +91 {selectedOrder?.api_client?.[0]?.fields?.phone_number}
-            </span>
+            {selectedOrder?.api_client?.length > 0 && (
+              <>
+                <h6>{selectedOrder?.api_client?.[0]?.fields?.name}</h6>
+                <span>
+                  +91 {selectedOrder?.api_client?.[0]?.fields?.phone_number}
+                </span>
+              </>
+            )}
 
             <div className="btns">
               {selectedOrder?.status === "pending" && (
@@ -303,16 +307,18 @@ const OrderHistory = () => {
                 </button>
               )}
 
-              <a
-                href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
-              >
-                <button className="white-cta">
-                  <div className="icon-container">
-                    <img src="/icons/call.svg" alt="" />
-                  </div>
-                  Call
-                </button>
-              </a>
+              {selectedOrder?.api_client?.length > 0 && (
+                <a
+                  href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
+                >
+                  <button className="white-cta">
+                    <div className="icon-container">
+                      <img src="/icons/call.svg" alt="" />
+                    </div>
+                    Call
+                  </button>
+                </a>
+              )}
 
               <button className="blue-cta">
                 <div className="icon-container">

@@ -89,7 +89,7 @@ export default function Dashboard() {
     } catch (error) {}
   };
 
-  console.log("Dashboard");
+  console.log("Dashboard", recent_orders);
 
   return (
     <div className="container tenant-container">
@@ -241,7 +241,7 @@ export default function Dashboard() {
               {recent_orders?.results?.map((item, i) => (
                 <div className="order-widget" key={i}>
                   <h6 className="line-clamp-1">
-                    {item?.api_client?.[0]?.fields?.name}
+                    {item?.api_client?.[0]?.fields?.name ?? "-"}
                   </h6>
 
                   <div className="order-details">
@@ -361,10 +361,14 @@ export default function Dashboard() {
             </div>
 
             <div className="contact-details">
-              <h6>{selectedOrder?.api_client?.[0]?.fields?.name}</h6>
-              <span>
-                +91 {selectedOrder?.api_client?.[0]?.fields?.phone_number}
-              </span>
+              {selectedOrder?.api_client?.length > 0 && (
+                <>
+                  <h6>{selectedOrder?.api_client?.[0]?.fields?.name}</h6>
+                  <span>
+                    +91 {selectedOrder?.api_client?.[0]?.fields?.phone_number}
+                  </span>
+                </>
+              )}
 
               <div className="btns">
                 {selectedOrder?.status === "pending" && (
@@ -379,16 +383,18 @@ export default function Dashboard() {
                   </button>
                 )}
 
-                <a
-                  href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
-                >
-                  <button className="white-cta">
-                    <div className="icon-container">
-                      <img src="/icons/call.svg" alt="" />
-                    </div>
-                    Call
-                  </button>
-                </a>
+                {selectedOrder?.api_client?.length > 0 && (
+                  <a
+                    href={`tel:${selectedOrder?.api_client?.[0]?.fields?.phone_number}`}
+                  >
+                    <button className="white-cta">
+                      <div className="icon-container">
+                        <img src="/icons/call.svg" alt="" />
+                      </div>
+                      Call
+                    </button>
+                  </a>
+                )}
 
                 <button className="blue-cta">
                   <div className="icon-container">
