@@ -1,15 +1,16 @@
-import { adminMatrixApi } from "@/api/adminApi";
+import { adminMatrixApi, BASE_API_URL } from "@/api/adminApi";
 import { AuthContext, useAuth } from "@/context/AuthContext";
 import { useProductCategory } from "@/context/useCategory";
 import { useProducts } from "@/context/useProducts";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { Call, Close } from "@mui/icons-material";
-import { SwipeableDrawer } from "@mui/material";
+import { CircularProgress, SwipeableDrawer } from "@mui/material";
 import { BellIcon } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
   const { tenantAPI } = useTenantAPI();
@@ -27,6 +28,9 @@ export default function Dashboard() {
 
   const [selectedOrder, setselectedOrder] = useState(null);
   const [low_stock, setlow_stock] = useState(true);
+
+  const [invoiceLoading, setinvoiceLoading] = useState(false);
+  const [outstandingLoading, setOutstandingLoading] = useState(false);
 
   const fetchMatrix = async () => {
     try {
@@ -87,6 +91,50 @@ export default function Dashboard() {
         setopenDrawer(false);
       }
     } catch (error) {}
+  };
+
+  const downloadInvoice = async () => {
+    if (selectedOrder?.invoice) {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${selectedOrder?.invoice}`,
+        "_blank"
+      );
+
+      return;
+    }
+
+    setinvoiceLoading(true);
+
+    try {
+      const res = await tenantAPI.get(
+        `/store-owner/order/invoice/?order_id=${selectedOrder?.id}`
+      );
+
+      toast.success(res?.message);
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${res?.invoice_url}`,
+        "_blank"
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setinvoiceLoading(false);
+    }
+  };
+
+  const sendReminder = async (client) => {
+    setOutstandingLoading(true);
+    try {
+      const res = await tenantAPI.post(
+        `/store-owner/client/outstanding-reminder/?client_id=${client?.id}`
+      );
+
+      toast.success(res?.message);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOutstandingLoading(false);
+    }
   };
 
   // console.log("Dashboard", recent_orders);
@@ -214,9 +262,20 @@ export default function Dashboard() {
                 </div>
 
                 <div className="actions">
-                  <button className="white-cta">
-                    <BellIcon />
-                    Remind
+                  <button
+                    className="white-cta"
+                    onClick={() => sendReminder(item)}
+                  >
+                    {outstandingLoading ? (
+                      <div className="loading">
+                        <CircularProgress size={20} />
+                      </div>
+                    ) : (
+                      <>
+                        <BellIcon />
+                        Remind
+                      </>
+                    )}
                   </button>
                   <a href={`tel:${item?.phone_number}`}>
                     <button className="blue-cta">
@@ -396,11 +455,19 @@ export default function Dashboard() {
                   </a>
                 )}
 
-                <button className="blue-cta">
-                  <div className="icon-container">
-                    <img src="/icons/task-square.svg" alt="" />
-                  </div>
-                  Invoice
+                <button className="blue-cta" onClick={downloadInvoice}>
+                  {invoiceLoading ? (
+                    <div className="loading">
+                      <CircularProgress size={20} />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="icon-container">
+                        <img src="/icons/task-square.svg" alt="" />
+                      </div>
+                      Invoice
+                    </>
+                  )}
                 </button>
               </div>
             </div>

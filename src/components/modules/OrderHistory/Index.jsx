@@ -5,6 +5,7 @@ import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { CircularProgress, SwipeableDrawer } from "@mui/material";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 const OrderHistory = () => {
   const { tenantAPI } = useTenantAPI();
@@ -21,6 +22,8 @@ const OrderHistory = () => {
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [totalOrderAmount, setTotalOrderAmount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const [invoiceLoading, setinvoiceLoading] = useState(false);
 
   const observerRef = useRef();
 
@@ -111,6 +114,34 @@ const OrderHistory = () => {
       fetchMatrix();
       setopenDrawer(false);
     } catch (error) {}
+  };
+
+  const downloadInvoice = async () => {
+    if (selectedOrder?.invoice) {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${selectedOrder?.invoice}`,
+        "_blank"
+      );
+
+      return;
+    }
+
+    setinvoiceLoading(true);
+    try {
+      const res = await tenantAPI.get(
+        `/store-owner/order/invoice/?order_id=${selectedOrder?.id}`
+      );
+
+      toast.success(res?.message);
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${res?.invoice_url}`,
+        "_blank"
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setinvoiceLoading(false);
+    }
   };
 
   return (
@@ -317,11 +348,19 @@ const OrderHistory = () => {
                 </a>
               )}
 
-              <button className="blue-cta">
-                <div className="icon-container">
-                  <img src="/icons/task-square.svg" alt="" />
-                </div>
-                Invoice
+              <button className="blue-cta" onClick={downloadInvoice}>
+                {invoiceLoading ? (
+                  <div className="loading">
+                    <CircularProgress size={20} />
+                  </div>
+                ) : (
+                  <>
+                    <div className="icon-container">
+                      <img src="/icons/task-square.svg" alt="" />
+                    </div>
+                    Invoice
+                  </>
+                )}
               </button>
             </div>
           </div>

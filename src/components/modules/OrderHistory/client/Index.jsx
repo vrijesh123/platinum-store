@@ -24,6 +24,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 const ClientOrderHistory = () => {
   const { tenantAPI } = useTenantAPI();
@@ -166,6 +167,30 @@ const ClientOrderHistory = () => {
     } catch (error) {}
   };
 
+  const downloadInvoice = async () => {
+    if (selectedOrder?.invoice) {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${selectedOrder?.invoice}`,
+        "_blank"
+      );
+
+      return;
+    }
+    try {
+      const res = await tenantAPI.get(
+        `/store-owner/order/invoice/?order_id=${selectedOrder?.id}`
+      );
+
+      toast.success(res?.message);
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${res?.invoice_url}`,
+        "_blank"
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleAccess = async (check) => {
     try {
       await tenantAPI.patch(`/store-owner/client/?pk=${client?.id}`, {
@@ -191,6 +216,63 @@ const ClientOrderHistory = () => {
       fetchClient();
     } catch (error) {
       console.error("Error punching payment:", error);
+    }
+  };
+
+  const downloadReceipt = async (receipt) => {
+    if (receipt?.receipt) {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${receipt?.receipt}`,
+        "_blank"
+      );
+
+      return;
+    }
+
+    try {
+      const res = await tenantAPI.get(
+        `/store-owner/client-payment/receipt/?client_payment_id=${receipt?.id}`
+      );
+
+      toast.success(res?.message);
+      window.open(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}${res?.receipt_url}`,
+        "_blank"
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const shareStatement = async () => {
+    try {
+      const res = await tenantAPI.get(
+        `/store-owner/client/payment-summary/?client_id=${client?.id}`
+      );
+
+      if (res?.pdf_bytes) {
+        // Convert base64 string to a Blob
+        const byteCharacters = atob(res.pdf_bytes);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        // Create an object URL for the Blob
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Open the PDF in a new tab
+        window.open(blobUrl, "_blank");
+
+        toast.success(res?.message || "Payment summary opened successfully");
+      } else {
+        toast.error("No PDF data received");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate payment summary");
     }
   };
 
@@ -323,7 +405,7 @@ const ClientOrderHistory = () => {
                           </p>
                         </div>
 
-                        <PDFDownloadLink
+                        {/* <PDFDownloadLink
                           document={
                             <ReceiptPDF
                               data={{
@@ -361,7 +443,14 @@ const ClientOrderHistory = () => {
                               {loading ? "Generating PDF..." : "Receipt"}
                             </button>
                           )}
-                        </PDFDownloadLink>
+                        </PDFDownloadLink> */}
+
+                        <button
+                          className="white-cta"
+                          onClick={() => downloadReceipt(item)}
+                        >
+                          Receipt
+                        </button>
                       </div>
                     ))}
                   </>
@@ -375,7 +464,9 @@ const ClientOrderHistory = () => {
               Punch Payment
             </button>
             {clientPayments?.length > 0 && (
-              <button className="white-cta">Share Statement</button>
+              <button className="white-cta" onClick={shareStatement}>
+                Share Statement
+              </button>
             )}
           </div>
 
@@ -614,7 +705,7 @@ const ClientOrderHistory = () => {
                 </button>
               )}
 
-              <button className="blue-cta">
+              <button className="blue-cta" onClick={downloadInvoice}>
                 <div className="icon-container">
                   <img src="/icons/task-square.svg" alt="" />
                 </div>
