@@ -57,6 +57,8 @@ const ClientOrderHistory = () => {
   const [client, setClient] = useState([]);
   const [clientPayments, setclientPayments] = useState(null);
 
+  const [invoiceLoading, setinvoiceLoading] = useState(false);
+
   const observerRef = useRef();
 
   const fetchClient = async () => {
@@ -176,6 +178,9 @@ const ClientOrderHistory = () => {
 
       return;
     }
+
+    setinvoiceLoading(true);
+
     try {
       const res = await tenantAPI.get(
         `/store-owner/order/invoice/?order_id=${selectedOrder?.id}`
@@ -188,6 +193,8 @@ const ClientOrderHistory = () => {
       );
     } catch (error) {
       console.log(error);
+    } finally {
+      setinvoiceLoading(false);
     }
   };
 
@@ -245,6 +252,8 @@ const ClientOrderHistory = () => {
   };
 
   const shareStatement = async () => {
+    setinvoiceLoading(true);
+
     try {
       const res = await tenantAPI.get(
         `/store-owner/client/payment-summary/?client_id=${client?.id}`
@@ -273,6 +282,8 @@ const ClientOrderHistory = () => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate payment summary");
+    } finally {
+      setinvoiceLoading(false);
     }
   };
 
@@ -295,24 +306,6 @@ const ClientOrderHistory = () => {
       </div>
 
       <div className="order-history-container">
-        {/* <div className="search-container">
-          <div className="icon-container">
-            <img src={"/icons/searchIcon.svg"} alt="" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch(e.target.value); // call your function here
-              }
-            }}
-            className="search-input"
-          />
-        </div> */}
-
         <div className="stats">
           <div className="stat">
             <p>Total Orders</p>
@@ -465,7 +458,13 @@ const ClientOrderHistory = () => {
             </button>
             {clientPayments?.length > 0 && (
               <button className="white-cta" onClick={shareStatement}>
-                Share Statement
+                {invoiceLoading ? (
+                  <div className="loading">
+                    <CircularProgress size={20} />
+                  </div>
+                ) : (
+                  <>Share Statement</>
+                )}
               </button>
             )}
           </div>
@@ -706,10 +705,18 @@ const ClientOrderHistory = () => {
               )}
 
               <button className="blue-cta" onClick={downloadInvoice}>
-                <div className="icon-container">
-                  <img src="/icons/task-square.svg" alt="" />
-                </div>
-                Invoice
+                {invoiceLoading ? (
+                  <div className="loading">
+                    <CircularProgress size={20} />
+                  </div>
+                ) : (
+                  <>
+                    <div className="icon-container">
+                      <img src="/icons/task-square.svg" alt="" />
+                    </div>
+                    Invoice
+                  </>
+                )}
               </button>
             </div>
           </div>

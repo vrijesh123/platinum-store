@@ -7,6 +7,7 @@ import {
   Button,
   Checkbox,
   Chip,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   Grid,
@@ -47,6 +48,7 @@ const GlobalForm = ({
   btnClassName = "",
   custom_theme = null,
   spacing = 2,
+  is_submitting = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -834,8 +836,15 @@ const GlobalForm = ({
                   type="submit"
                   className={btnClassName}
                   style={{ marginTop: "16px" }}
+                  disabled={is_submitting}
                 >
-                  {btnText}
+                  {is_submitting ? (
+                    <div className="loading">
+                      <CircularProgress size={24} color="white" />
+                    </div>
+                  ) : (
+                    <>{btnText}</>
+                  )}
                 </button>
               )}
             </Form>

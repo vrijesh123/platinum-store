@@ -13,6 +13,8 @@ export default function Login() {
     const [isComplete, setIsComplete] = useState(false);
     const [number, setnumber] = useState(null)
 
+    const [submitting, setsubmitting] = useState(false)
+
     const form_json = [
         // {
         //     type: "text",
@@ -41,6 +43,8 @@ export default function Login() {
     const handleSubmit = async (value, resetForm) => {
         const { mobile_number } = value
 
+        setsubmitting(true)
+
         try {
             await tenantNoAuthAPI.post('/client/request-otp/', { calling_code: '91', phone_number: mobile_number });
 
@@ -50,6 +54,8 @@ export default function Login() {
 
         } catch (error) {
             toast.error("Error in sending OTP");
+        } finally {
+            setsubmitting(false)
         }
     }
 
@@ -130,6 +136,7 @@ export default function Login() {
                                     btnClassName={'blue-cta'}
                                     btnText="Get OTP"
                                     spacing={1}
+                                    is_submitting={submitting}
                                 >
                                 </GlobalForm>
                             </div>

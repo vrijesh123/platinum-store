@@ -242,24 +242,26 @@ export default function Dashboard() {
           <div className="outstandings">
             {matrix?.client_by_top_outstanding?.map((item, i) => (
               <div className="out-standing-widget" key={item?.id}>
-                <div className="details">
-                  <div className="info">
-                    <p>{item?.name}</p>
-                    <span>
-                      Total Buy: ₹{Number(item?.total_order).toLocaleString()}
-                    </span>
-                    <br />
+                <Link href={`/order-history/${item?.user}`}>
+                  <div className="details">
+                    <div className="info">
+                      <p>{item?.name}</p>
+                      <span>
+                        Total Buy: ₹{Number(item?.total_order).toLocaleString()}
+                      </span>
+                      <br />
 
-                    <span style={{ color: "#2142FF" }}>
-                      Total Payment: ₹
-                      {Number(item?.total_payment).toLocaleString()}
-                    </span>
-                  </div>
+                      <span style={{ color: "#2142FF" }}>
+                        Total Payment: ₹
+                        {Number(item?.total_payment).toLocaleString()}
+                      </span>
+                    </div>
 
-                  <div className="outstanding">
-                    <p>₹{Number(item?.outstanding).toLocaleString()}</p>
+                    <div className="outstanding">
+                      <p>₹{Number(item?.outstanding).toLocaleString()}</p>
+                    </div>
                   </div>
-                </div>
+                </Link>
 
                 <div className="actions">
                   <button

@@ -51,6 +51,8 @@ const Clients = () => {
 
   const [openMenu, setOpenMenu] = useState(null); // track which client's menu is open
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleMenuToggle = (index) => {
     setOpenMenu(openMenu === index ? null : index);
   };
@@ -112,6 +114,7 @@ const Clients = () => {
   );
 
   const handleSubmit = async (values, resetForm) => {
+    setSubmitting(true);
     try {
       await tenantAPI.post("/store-owner/client/", values);
 
@@ -121,6 +124,7 @@ const Clients = () => {
       console.error(error);
     } finally {
       setopenDrawer(false);
+      setSubmitting(false);
     }
   };
 
@@ -309,6 +313,7 @@ const Clients = () => {
             on_Submit={handleSubmit}
             btnClassName={"blue-cta"}
             spacing={1}
+            is_submitting={submitting}
           ></GlobalForm>
         </div>
       </SwipeableDrawer>
