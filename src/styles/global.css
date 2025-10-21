@@ -1938,7 +1938,7 @@ section {
 }
 .side-menu .logo-container {
   width: 200px;
-  margin-bottom: 5px;
+  margin: 10px;
 }
 .side-menu .current-user {
   margin: 48px 0;
@@ -1992,15 +1992,9 @@ section {
   display: flex;
   align-items: center;
   padding: 12px;
-  flex: 1;
   border: 1px solid transparent;
   width: 100%;
   border-radius: 5px;
-}
-@media screen and (max-width: 768px) {
-  .side-menu .menu .menu-item {
-    flex: unset;
-  }
 }
 .side-menu .menu .menu-item:hover {
   border: 1px solid #E6E6E6;
@@ -2326,6 +2320,11 @@ section {
   gap: 10px;
   padding-left: 20px;
   border-left: 1px solid #E6E6E6;
+}
+@media screen and (min-width: 768px) {
+  .top-nav-container .top-nav .profile {
+    display: none;
+  }
 }
 .top-nav-container .top-nav .profile .img-container {
   width: 50px;

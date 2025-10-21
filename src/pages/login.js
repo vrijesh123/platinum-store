@@ -180,14 +180,31 @@ function OTPInput({
     };
 
     const handleChange = (idx, ch) => {
-        const d = ch.replace(/\D/g, ""); // only digits
-        if (!d) return;
+        const digitsOnly = ch.replace(/\D/g, "");
+        if (!digitsOnly) return;
+
         const next = [...digits];
-        next[idx] = d[d.length - 1]; // only last typed digit
-        setDigits(next);
-        emit(next);
-        if (idx < length - 1) refs.current[idx + 1]?.focus();
+
+        if (digitsOnly.length > 1) {
+            // iOS OTP AutoFill or user pasted multiple chars directly into the field
+            for (let i = 0; i < digitsOnly.length && idx + i < length; i++) {
+                next[idx + i] = digitsOnly[i];
+            }
+            setDigits(next);
+            emit(next);
+
+            // focus last filled box
+            const last = Math.min(idx + digitsOnly.length - 1, length - 1);
+            refs.current[last]?.focus();
+        } else {
+            // regular single-character entry
+            next[idx] = digitsOnly;
+            setDigits(next);
+            emit(next);
+            if (idx < length - 1) refs.current[idx + 1]?.focus();
+        }
     };
+
 
     const handleKeyDown = (idx, e) => {
         const key = e.key;

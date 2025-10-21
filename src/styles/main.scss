@@ -377,6 +377,86 @@ $green: #16A34A;
 }
 
 
+.dropzone-container {
+    margin: 10px 0;
+}
+
+.dropzone-box {
+    padding: 30px;
+    border: 2px dashed $border-color;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+    margin: 10px 0;
+    cursor: pointer;
+
+    .img-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    p {
+        color: $grey-text-color;
+
+        span {
+            color: #418FF3;
+            text-decoration: underline;
+        }
+    }
+}
+
+.document-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid $border-color;
+    padding: 10px;
+    border-radius: 10px;
+
+    .left {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        .icon-container {
+            width: 40px;
+            height: 40px;
+        }
+
+        .doc-detail {
+            display: flex;
+            flex-direction: column;
+
+            p {
+                font-size: 16px;
+                font-weight: 500;
+                color: $text-color;
+            }
+
+            span {
+                font-size: 12px;
+                color: $grey-text-color;
+            }
+        }
+    }
+
+    .right {
+        .icon-container {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
+.export-dropzone {
+    .blue-cta {
+        margin-top: 20px;
+    }
+}
 
 
 
@@ -560,13 +640,14 @@ $green: #16A34A;
     flex-direction: row;
     gap: 40px;
     border: 1px solid $border-color;
-    padding: 10px;
+    padding: 20px;
     border-radius: 5px;
     position: relative;
 
     @media (max-width: 900px) {
         flex-direction: column;
         gap: 16px;
+        padding: 10px;
     }
 
     .left {
@@ -605,8 +686,13 @@ $green: #16A34A;
 
     .actions {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 5px;
+        right: 5px;
+
+        @media (max-width: 900px) {
+            top: 10px;
+            right: 10px;
+        }
 
         .option {
             width: 24px;
@@ -619,6 +705,7 @@ $green: #16A34A;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         .dropdown-menu {

@@ -322,6 +322,48 @@ export default class APIBase {
     });
   }
 
+  downloadFile(endpoint = "", params = "", headers = {}) {
+    if (this.config.tokenKey) {
+      headers = this.buildAuthHeader(this.getToken());
+    }
+
+    const fullEndpoint = endpoint + params;
+
+    return this.apiClient.get(fullEndpoint, {
+      headers: headers,
+      responseType: 'blob', // 👈 Key part
+    });
+  }
+
+  // Add this method to your APIBase class
+  uploadFile(endpoint = "", data, headers = {}, onUploadProgress = null) {
+    if (this.config.tokenKey) {
+      headers = this.buildAuthHeader(this.getToken());
+    }
+
+    // If data is FormData, let browser/axios set proper Content-Type
+    const isFormData = data instanceof FormData;
+    if (isFormData) {
+      // Don't manually set Content-Type so that boundary is auto-handled
+      headers["Content-Type"] = undefined;
+    }
+
+    return this.apiClient({
+      method: "post",
+      url: endpoint,
+      data,
+      headers: headers,
+      timeout: 0, // No timeout
+      onUploadProgress: onUploadProgress || function (progressEvent) {
+        // You can add default progress handling here if needed
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        console.log(percentCompleted);
+      },
+    });
+  }
+
   // Methods for token management in local storage
   getToken() {
     return Cookies.get('access_token');

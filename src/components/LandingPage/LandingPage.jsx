@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import GlobalForm from "../global_components/GlobalForm";
 import { AuthContext } from "@/context/AuthContext";
+import Link from "next/link";
 
 const form_json = [
   {
@@ -63,7 +64,11 @@ const LandingPage = () => {
                 btnText="Login"
                 spacing={0}
                 is_submitting={submitting}
-              ></GlobalForm>
+              >
+                <div className="forgot-password">
+                  <Link href={"/forgot-password"}>Forgot Password</Link>
+                </div>
+              </GlobalForm>
             </div>
           </div>
         </div>

@@ -1552,6 +1552,11 @@ $green: #16A34A;
                 font-size: 1rem;
             }
         }
+
+        .white-cta {
+            border-color: $text-color;
+            color: $text-color;
+        }
     }
 
     .products {

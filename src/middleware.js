@@ -20,7 +20,6 @@ export async function middleware(req) {
     ? hostParts.length <= 1 // tenant.localhost:3000 → subdomain, localhost:3000 → apex
     : hostParts.length === 2 || host.startsWith("www.");
 
-  console.log("middleware", hostParts, host);
 
   if (isPlatinum) {
     return NextResponse.next();

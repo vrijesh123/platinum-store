@@ -33,7 +33,7 @@ const TopNavbar = () => {
       <div className="top-nav">
         <div className="profile">
           <div className="img-container">
-            <img src="/favicon/favicon-32x32.png" className="logo" />
+            <img src="/favicon/android-chrome-192x192.png" className="logo" />
           </div>
         </div>
       </div>

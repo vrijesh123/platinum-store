@@ -53,9 +53,27 @@ const Clients = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
+  const menuRef = useRef(null);
+
   const handleMenuToggle = (index) => {
     setOpenMenu(openMenu === index ? null : index);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close menu if click is outside any .actions or .dropdown-menu
+      if (
+        openMenu !== null &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenu]);
 
   // ✅ Fetch clients (supports pagination + search)
   const fetchClients = useCallback(
@@ -118,6 +136,7 @@ const Clients = () => {
     try {
       await tenantAPI.post("/store-owner/client/", values);
 
+      toast.success("Client has been added");
       resetForm();
       fetchClients();
     } catch (error) {
@@ -189,7 +208,7 @@ const Clients = () => {
           </button>
         </div>
 
-        <div className="clients">
+        <div className="clients" ref={menuRef}>
           {clients?.map((item, i) => {
             const isLast = i === clients.length - 1;
             return (

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { AuthContext } from "@/context/AuthContext";
@@ -129,6 +123,25 @@ const SideNav = () => {
       menu.removeEventListener("wheel", handleWheel);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close sidebar only if it's open and click is outside both the menu and the hamburger
+      if (
+        isSideMenuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        !event.target.closest(".hamburger")
+      ) {
+        setSideMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSideMenuOpen]);
 
   useEffect(() => {
     // Close the side menu on route change

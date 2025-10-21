@@ -2144,7 +2144,7 @@ section {
 
     .logo-container {
         width: 200px;
-        margin-bottom: 5px;
+        margin: 10px;
     }
 
 
@@ -2204,13 +2204,8 @@ section {
             display: flex;
             align-items: center;
             padding: 12px;
-            flex: 1;
             border: 1px solid transparent;
             width: 100%;
-
-            @media screen and (max-width: 768px) {
-                flex: unset;
-            }
 
             border-radius: 5px;
 
@@ -2623,6 +2618,10 @@ section {
             gap: 10px;
             padding-left: 20px;
             border-left: 1px solid $border-color;
+
+            @media screen and (min-width: 768px) {
+                display: none;
+            }
 
             .img-container {
                 width: 50px;

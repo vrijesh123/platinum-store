@@ -238,66 +238,74 @@ export default function Dashboard() {
           <div className="title">
             <h4>Top Outstanding</h4>
           </div>
+          {matrix?.client_by_top_outstanding?.length <= 0 ? (
+            <div style={{ margin: "100px", textAlign: "center" }}>
+              <p>No Outstandings Found</p>
+            </div>
+          ) : (
+            <div className="outstandings">
+              {matrix?.client_by_top_outstanding?.map((item, i) => (
+                <div className="out-standing-widget" key={item?.id}>
+                  <Link href={`/order-history/${item?.user}`}>
+                    <div className="details">
+                      <div className="info">
+                        <p>{item?.name}</p>
+                        <span>
+                          Total Buy: ₹
+                          {Number(item?.total_order).toLocaleString()}
+                        </span>
+                        <br />
 
-          <div className="outstandings">
-            {matrix?.client_by_top_outstanding?.map((item, i) => (
-              <div className="out-standing-widget" key={item?.id}>
-                <Link href={`/order-history/${item?.user}`}>
-                  <div className="details">
-                    <div className="info">
-                      <p>{item?.name}</p>
-                      <span>
-                        Total Buy: ₹{Number(item?.total_order).toLocaleString()}
-                      </span>
-                      <br />
-
-                      <span style={{ color: "#2142FF" }}>
-                        Total Payment: ₹
-                        {Number(item?.total_payment).toLocaleString()}
-                      </span>
-                    </div>
-
-                    <div className="outstanding">
-                      <p>₹{Number(item?.outstanding).toLocaleString()}</p>
-                    </div>
-                  </div>
-                </Link>
-
-                <div className="actions">
-                  <button
-                    className="white-cta"
-                    onClick={() => sendReminder(item)}
-                  >
-                    {outstandingLoading ? (
-                      <div className="loading">
-                        <CircularProgress size={20} />
+                        <span style={{ color: "#2142FF" }}>
+                          Total Payment: ₹
+                          {Number(item?.total_payment).toLocaleString()}
+                        </span>
                       </div>
-                    ) : (
-                      <>
-                        <BellIcon />
-                        Remind
-                      </>
-                    )}
-                  </button>
-                  <a href={`tel:${item?.phone_number}`}>
-                    <button className="blue-cta">
-                      <Call />
-                      Call
+
+                      <div className="outstanding">
+                        <p>₹{Number(item?.outstanding).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="actions">
+                    <button
+                      className="white-cta"
+                      onClick={() => sendReminder(item)}
+                    >
+                      {outstandingLoading ? (
+                        <div className="loading">
+                          <CircularProgress size={20} />
+                        </div>
+                      ) : (
+                        <>
+                          <BellIcon />
+                          Remind
+                        </>
+                      )}
                     </button>
-                  </a>
+                    <a href={`tel:${item?.phone_number}`}>
+                      <button className="blue-cta">
+                        <Call />
+                        Call
+                      </button>
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {recent_orders?.results?.length > 0 && (
-          <div className="recent-orders">
-            <div className="title">
-              <h4>Recent Orders</h4>
+        <div className="recent-orders">
+          <div className="title">
+            <h4>Recent Orders</h4>
+            {recent_orders?.results?.length > 0 && (
               <Link href={"/order-history"}>View all</Link>
-            </div>
+            )}
+          </div>
 
+          {recent_orders?.results?.length > 0 ? (
             <div className="orders">
               {recent_orders?.results?.map((item, i) => (
                 <div className="order-widget" key={i}>
@@ -340,8 +348,12 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div style={{ margin: "100px", textAlign: "center" }}>
+              <p>No Recent Orders Available</p>
+            </div>
+          )}
+        </div>
 
         <SwipeableDrawer
           anchor={is_mobile ? "bottom" : "right"}

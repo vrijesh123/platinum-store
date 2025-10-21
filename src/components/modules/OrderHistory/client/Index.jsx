@@ -236,6 +236,8 @@ const ClientOrderHistory = () => {
       return;
     }
 
+    setinvoiceLoading(true);
+
     try {
       const res = await tenantAPI.get(
         `/store-owner/client-payment/receipt/?client_payment_id=${receipt?.id}`
@@ -248,6 +250,8 @@ const ClientOrderHistory = () => {
       );
     } catch (error) {
       console.log(error);
+    } finally {
+      setinvoiceLoading(false);
     }
   };
 
@@ -255,7 +259,7 @@ const ClientOrderHistory = () => {
     setinvoiceLoading(true);
 
     try {
-      const res = await tenantAPI.get(
+      const res = await tenantAPI.post(
         `/store-owner/client/payment-summary/?client_id=${client?.id}`
       );
 
@@ -441,6 +445,7 @@ const ClientOrderHistory = () => {
                         <button
                           className="white-cta"
                           onClick={() => downloadReceipt(item)}
+                          disabled={invoiceLoading}
                         >
                           Receipt
                         </button>

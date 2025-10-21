@@ -1,12 +1,15 @@
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { Edit, EyeIcon, PlusIcon } from "lucide-react";
+import { Edit, EyeIcon, ImportIcon, PlusIcon } from "lucide-react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CircularProgress, SwipeableDrawer } from "@mui/material";
+import { CircularProgress, Dialog, SwipeableDrawer } from "@mui/material";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
 import GlobalForm from "@/components/global_components/GlobalForm";
 import { useProductCategory } from "@/context/useCategory";
+import { toast } from "react-toastify";
+import ImportExportIcon from "@mui/icons-material/ImportExport";
+import FileDropzone from "@/components/global_components/components/FileDropzone";
 
 const Products = () => {
   const router = useRouter();
@@ -26,6 +29,9 @@ const Products = () => {
 
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [openDropzone, setopenDropzone] = useState(false);
+  const [bulkFile, setbulkFile] = useState(null);
 
   const observerRef = useRef();
 
@@ -78,6 +84,7 @@ const Products = () => {
           p.id === item.id ? { ...p, is_active: !p.is_active } : p
         )
       );
+      toast.success("Status changed successfully!");
     } catch (error) {}
   };
 
@@ -86,12 +93,15 @@ const Products = () => {
       await tenantAPI.delete(`/store-owner/product/?pk=${id}`);
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Produst has been deleted");
     } catch (error) {}
   };
 
   const handleSubmit = async (value, resetForm) => {
     try {
       const res = await tenantAPI.post("/store-owner/product/", value);
+
+      toast.success("Produst has been added");
       resetForm();
       fetchProducts(selectedCategory);
     } catch (error) {
@@ -113,6 +123,8 @@ const Products = () => {
       setProducts((prev) =>
         prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
       );
+
+      toast.success("Produst has been edited");
     } catch (error) {
       console.log(error);
     } finally {
@@ -123,6 +135,51 @@ const Products = () => {
   const handleSearch = (term) => {
     setSearchTerm(term);
     fetchProducts(selectedCategory, term);
+  };
+
+  const downloadProductExport = async () => {
+    try {
+      const response = await tenantAPI.downloadFile(
+        `/store-owner/product/export/`
+      );
+
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link element
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "products.csv"); // File name
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Excel Downloaded");
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
+  };
+
+  const uploadProduct = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", bulkFile); // 'file' must match backend key name
+
+      const res = await tenantAPI.post(
+        `/store-owner/product/import/`,
+        formData
+      );
+
+      toast.success("File Uploaded!");
+      setopenDropzone(false);
+      fetchProducts(selectedCategory);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
   };
 
   // ✅ Infinite Scroll (Intersection Observer)
@@ -239,6 +296,14 @@ const Products = () => {
           <button className="black-cta" onClick={() => setopenDrawer(true)}>
             <PlusIcon />
             Add Product
+          </button>
+
+          <button className="white-cta" onClick={downloadProductExport}>
+            Export
+          </button>
+
+          <button className="white-cta" onClick={() => setopenDropzone(true)}>
+            Import
           </button>
         </div>
 
@@ -457,6 +522,56 @@ const Products = () => {
           <button className="white-cta">Save</button>
         </div> */}
       </SwipeableDrawer>
+
+      <Dialog
+        open={openDropzone}
+        onClose={() => setopenDropzone(false)}
+        sx={{
+          "& .MuiDialog-paper": {
+            padding: "10px 20px 20px",
+            maxWidth: "500px",
+            width: "100%",
+          },
+        }}
+      >
+        <div className="export-dropzone">
+          <FileDropzone
+            label="Please Upload CSV File"
+            onFileUpload={setbulkFile}
+            accept=".xlsx,.csv"
+            fileType="spreadsheet"
+          />
+          {bulkFile && (
+            <div className="document-preview">
+              <div className="left">
+                <div className="icon-container">
+                  <img src="/icons/file.svg" alt="xls" />
+                </div>
+
+                <div className="doc-detail">
+                  <p>{bulkFile?.name} </p>
+                  <span>Uploaded</span>
+                </div>
+              </div>
+
+              <div className="right">
+                <div
+                  className="icon-container"
+                  onClick={() => setbulkFile(null)}
+                >
+                  <img src="/icons/trash.svg" alt="" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {bulkFile && (
+            <div className="blue-cta" onClick={uploadProduct}>
+              Upload
+            </div>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 };
