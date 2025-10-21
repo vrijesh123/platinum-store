@@ -27,7 +27,7 @@ export default function Document() {
         />
 
         {/* og image tag*/}
-        <meta property="og:image" content="favicon/android-chrome-512x512.png" />
+        <meta property="og:image" content="/favicon/android-chrome-512x512.png" />
         <meta property="og:title" content="Platinum Store" />
         <meta property="og:description" content="Platinum Store" />
       </Head>
