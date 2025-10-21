@@ -12,7 +12,7 @@ export const useTenantAPI = () => {
 
             if (hostParts.length > 1 && hostParts[0] !== 'www') {
                 const tenant = hostParts[0];
-                const baseURL = `http://${tenant}.theplatinumstore.xyz/api`;
+                const baseURL = `https://${tenant}.theplatinumstore.xyz/api`;
                 setTenantAPI(createTenantAPI(baseURL));
             }
         }
@@ -24,7 +24,7 @@ export const useTenantAPI = () => {
 
             if (hostParts.length > 1 && hostParts[0] !== 'www') {
                 const tenant = hostParts[0];
-                const baseURL = `http://${tenant}.theplatinumstore.xyz/api`;
+                const baseURL = `https://${tenant}.theplatinumstore.xyz/api`;
                 setTenantNoAuthAPI(createTenantNoAuthAPI(baseURL));
             }
         }
