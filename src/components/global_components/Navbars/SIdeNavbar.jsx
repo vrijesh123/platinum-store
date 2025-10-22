@@ -6,6 +6,7 @@ import Link from "next/link";
 import { menuConfig } from "@/configs/menuConfigs";
 import { usePathname } from "next/navigation";
 import { LinkIcon } from "lucide-react";
+import { WhatsApp } from "@mui/icons-material";
 
 const SideNav = () => {
   const { permissions, logout } = useContext(AuthContext);
@@ -250,6 +251,13 @@ const SideNav = () => {
           <li className={`menu-item`} onClick={handleShareLink}>
             <LinkIcon />
             <span className="name">Share Link</span>
+          </li>
+
+          <li className={`menu-item`}>
+            <Link href={"/whatsapp-qr"}>
+              <WhatsApp />
+              <span className="name">Whatsapp QR</span>
+            </Link>
           </li>
         </ul>
 

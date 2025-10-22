@@ -1,7 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GlobalForm from "../global_components/GlobalForm";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
+import { BASE_API_URL, WhatsappQrAPI } from "@/api/adminApi";
+import { toast } from "react-toastify";
 
 const form_json = [
   {

@@ -57,6 +57,9 @@
   outline: none;
   border-color: #E6E6E6;
 }
+.input input::-moz-placeholder {
+  color: #6B6B6B;
+}
 .input input::placeholder {
   color: #6B6B6B;
 }
@@ -88,7 +91,8 @@
 .search-container .icon-container img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 .search-container .search-input {
   flex: 1;
@@ -297,7 +301,6 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 .switch .slider:before {
@@ -308,7 +311,6 @@
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 .switch input:checked + .slider {
@@ -318,8 +320,6 @@
   box-shadow: 0 0 1px #16A34A;
 }
 .switch input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
   transform: translateX(26px);
 }
 .switch .slider.round {
@@ -433,6 +433,7 @@
   background-color: #FFEAEA;
   font-size: 16px;
   color: #D43131;
+  max-width: -moz-fit-content;
   max-width: fit-content;
 }
 .out-standing-widget .actions {
@@ -806,6 +807,7 @@
   color: #16A34A;
   border: 1px solid #16A34A;
   border-radius: 5px;
+  max-width: -moz-fit-content;
   max-width: fit-content;
 }
 .cart-widget .cart-quantity .qty {
@@ -831,3 +833,35 @@
   width: 20px;
   height: 20px;
 }
+
+.whatsapp-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 80vh;
+}
+.whatsapp-qr .error {
+  color: #16A34A;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+.whatsapp-qr .qr-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.whatsapp-qr .qr-container p {
+  font-size: 1rem;
+}
+.whatsapp-qr .qr-container .qr-code {
+  width: 400px;
+  height: 400px;
+}
+@media (max-width: 768px) {
+  .whatsapp-qr .qr-container .qr-code {
+    width: 100%;
+    height: 100%;
+  }
+}/*# sourceMappingURL=main.css.map */

@@ -280,8 +280,6 @@ const ClientOrderHistory = () => {
         window.open(blobUrl, "_blank");
 
         toast.success(res?.message || "Payment summary opened successfully");
-      } else {
-        toast.error("No PDF data received");
       }
     } catch (error) {
       console.error(error);

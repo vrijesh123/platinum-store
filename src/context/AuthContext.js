@@ -52,9 +52,8 @@ export const AuthProvider = ({ children }) => {
         const { access, refresh, user_id, tenants } = response;
 
         // In development, use localhost subdomain
-        window.location.href = `https://${tenants?.[0]?.schema_name}.theplatinumstore.in/authenticate?access=${access}&refresh=${refresh}`;
-        // window.location.href = `http://${tenants?.[0]?.schema_name}.localhost:3000/authenticate?access=${access}&refresh=${refresh}`;
-
+        // window.location.href = `https://${tenants?.[0]?.schema_name}.theplatinumstore.in/authenticate?access=${access}&refresh=${refresh}`;
+        window.location.href = `http://${tenants?.[0]?.schema_name}.localhost:3000/authenticate?access=${access}&refresh=${refresh}`;
       } else {
         // Handle unsuccessful login
         toast.error("Something went wrong, Please try again!");
@@ -137,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setPermissions([]);
       window.location.href = process.env.NEXT_PUBLIC_BASE_URL;
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const clientLogout = async () => {
@@ -159,7 +158,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setPermissions([]);
       window.location.href = `https://${sub_domain}.theplatinumstore.in/login`;
-    } catch (error) { }
+    } catch (error) {}
   };
 
   return (
