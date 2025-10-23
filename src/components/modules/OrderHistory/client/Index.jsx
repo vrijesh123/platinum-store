@@ -166,6 +166,7 @@ const ClientOrderHistory = () => {
         `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
       );
       setopenDrawer(false);
+      toast.success("Order Cancelled!");
     } catch (error) {}
   };
 
@@ -707,20 +708,22 @@ const ClientOrderHistory = () => {
                 </button>
               )}
 
-              <button className="blue-cta" onClick={downloadInvoice}>
-                {invoiceLoading ? (
-                  <div className="loading">
-                    <CircularProgress size={20} />
-                  </div>
-                ) : (
-                  <>
-                    <div className="icon-container">
-                      <img src="/icons/task-square.svg" alt="" />
+              {selectedOrder?.status !== "canceled" && (
+                <button className="blue-cta" onClick={downloadInvoice}>
+                  {invoiceLoading ? (
+                    <div className="loading">
+                      <CircularProgress size={20} />
                     </div>
-                    Invoice
-                  </>
-                )}
-              </button>
+                  ) : (
+                    <>
+                      <div className="icon-container">
+                        <img src="/icons/task-square.svg" alt="" />
+                      </div>
+                      Invoice
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

@@ -138,6 +138,8 @@ const Store = () => {
     [loading, nextPageUrl, selectedCategory, searchTerm]
   );
 
+  console.log("store", cart_items);
+
   return (
     <div className="container">
       <div className="store-heading">
@@ -231,7 +233,7 @@ const Store = () => {
                             className="red-cta"
                             onClick={() => removeCartItem(in_cart, 1)}
                           >
-                            Remove Item
+                            Remove
                           </button>
                         ) : (
                           <button

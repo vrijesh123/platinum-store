@@ -1956,6 +1956,9 @@ section {
   border: 1px solid #E6E6E6;
   background-color: rgb(247, 247, 247);
 }
+.side-menu .menu a {
+  display: flex;
+}
 .side-menu .menu .active {
   background-color: rgb(247, 247, 247);
 }

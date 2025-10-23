@@ -85,7 +85,9 @@ export default function Dashboard() {
       const res = await tenantAPI.patch(
         `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
       );
+
       if (res) {
+        toast.success("Order Cancelled!");
         fetchRecentOrders();
         fetchMatrix();
         setopenDrawer(false);
@@ -137,13 +139,11 @@ export default function Dashboard() {
     }
   };
 
-  // console.log("Dashboard", recent_orders);
+  console.log("Dashboard", user);
 
   return (
     <div className="container tenant-container">
-      <div className="title">
-        <h4>Welcome User,</h4>
-      </div>
+      {/* <div className="title"><h4>Welcome User,</h4></div> */}
 
       <div className="dashboard-container">
         <div className="statistics">
@@ -469,20 +469,22 @@ export default function Dashboard() {
                   </a>
                 )}
 
-                <button className="blue-cta" onClick={downloadInvoice}>
-                  {invoiceLoading ? (
-                    <div className="loading">
-                      <CircularProgress size={20} />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="icon-container">
-                        <img src="/icons/task-square.svg" alt="" />
+                {selectedOrder?.status !== "canceled" && (
+                  <button className="blue-cta" onClick={downloadInvoice}>
+                    {invoiceLoading ? (
+                      <div className="loading">
+                        <CircularProgress size={20} />
                       </div>
-                      Invoice
-                    </>
-                  )}
-                </button>
+                    ) : (
+                      <>
+                        <div className="icon-container">
+                          <img src="/icons/task-square.svg" alt="" />
+                        </div>
+                        Invoice
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

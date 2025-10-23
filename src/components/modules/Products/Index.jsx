@@ -203,7 +203,7 @@ const Products = () => {
     {
       type: "select",
       name: "category",
-      label: "Product Category",
+      label: "Brand",
       options: categories,
       fullWidth: true,
       variant: "outlined",

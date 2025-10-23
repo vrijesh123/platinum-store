@@ -52,8 +52,8 @@ export const AuthProvider = ({ children }) => {
         const { access, refresh, user_id, tenants } = response;
 
         // In development, use localhost subdomain
-        window.location.href = `https://${tenants?.[0]?.schema_name}.theplatinumstore.in/authenticate?access=${access}&refresh=${refresh}`;
-        // window.location.href = `http://${tenants?.[0]?.schema_name}.localhost:3000/authenticate?access=${access}&refresh=${refresh}`;
+        // window.location.href = `https://${tenants?.[0]?.schema_name}.theplatinumstore.in/authenticate?access=${access}&refresh=${refresh}`;
+        window.location.href = `http://${tenants?.[0]?.schema_name}.localhost:3000/authenticate?access=${access}&refresh=${refresh}`;
       } else {
         // Handle unsuccessful login
         toast.error("Something went wrong, Please try again!");

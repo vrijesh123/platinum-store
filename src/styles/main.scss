@@ -960,12 +960,24 @@ $green: #16A34A;
     align-items: center;
     justify-content: center;
     text-align: center;
+    flex-direction: column;
     height: 80vh;
 
     .error {
-        color: $green;
-        font-size: 16px;
-        text-transform: capitalize;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+
+        p {
+            color: $green;
+            font-size: 16px;
+            text-transform: capitalize;
+        }
+
+        .red-cta {
+            margin: 10px 0;
+        }
     }
 
     .qr-container {

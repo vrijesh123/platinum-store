@@ -25,6 +25,8 @@ const OrderHistory = () => {
 
   const [invoiceLoading, setinvoiceLoading] = useState(false);
 
+  const [cancelling, setcancelling] = useState(false);
+
   const observerRef = useRef();
 
   // ✅ Fetch Orders (with pagination)
@@ -98,22 +100,26 @@ const OrderHistory = () => {
         `/store-owner/order/?pk=${order?.id}&mark_accepted=true`
       );
       if (res) {
-        fetchRecentOrders();
-        fetchMatrix();
+        fetchOrders();
         setopenDrawer(false);
       }
     } catch (error) {}
   };
 
   const cancelOrder = async (order) => {
+    setcancelling(true);
     try {
       const res = await tenantAPI.patch(
         `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
       );
-      fetchRecentOrders();
-      fetchMatrix();
+
+      toast.success("Order Cancelled!");
+      fetchOrders();
       setopenDrawer(false);
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setcancelling(false);
+    }
   };
 
   const downloadInvoice = async () => {
@@ -328,10 +334,18 @@ const OrderHistory = () => {
                   className="red-cta"
                   onClick={() => cancelOrder(selectedOrder)}
                 >
-                  <div className="icon-container">
-                    <img src="/icons/close.svg" alt="" />
-                  </div>
-                  Cancel
+                  {cancelling ? (
+                    <div className="loading">
+                      <CircularProgress size={20} color="#FFFF" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="icon-container">
+                        <img src="/icons/close.svg" alt="" />
+                      </div>
+                      Cancel
+                    </>
+                  )}
                 </button>
               )}
 
@@ -348,20 +362,22 @@ const OrderHistory = () => {
                 </a>
               )}
 
-              <button className="blue-cta" onClick={downloadInvoice}>
-                {invoiceLoading ? (
-                  <div className="loading">
-                    <CircularProgress size={20} />
-                  </div>
-                ) : (
-                  <>
-                    <div className="icon-container">
-                      <img src="/icons/task-square.svg" alt="" />
+              {selectedOrder?.status !== "canceled" && (
+                <button className="blue-cta" onClick={downloadInvoice}>
+                  {invoiceLoading ? (
+                    <div className="loading">
+                      <CircularProgress size={20} />
                     </div>
-                    Invoice
-                  </>
-                )}
-              </button>
+                  ) : (
+                    <>
+                      <div className="icon-container">
+                        <img src="/icons/task-square.svg" alt="" />
+                      </div>
+                      Invoice
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

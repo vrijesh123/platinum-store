@@ -25,7 +25,6 @@ export default class APIBase {
       // Additional configurable parameters can be added here
     };
 
-
     // Creating an axios instance with the provided configuration
     this.apiClient = axios.create({
       baseURL: this.config.baseURL,
@@ -41,16 +40,18 @@ export default class APIBase {
     this.delete = this.delete.bind(this);
 
     // Interceptors for handling request and response
-    this.apiClient.interceptors.request.use((config) => {
-      // Your request interception logic here
-      // E.g., adding a token
-      this.addToken();
-      return config;
-    }, error => {
-      // Do something with request error
-      return Promise.reject(error);
-    });
-
+    this.apiClient.interceptors.request.use(
+      (config) => {
+        // Your request interception logic here
+        // E.g., adding a token
+        this.addToken();
+        return config;
+      },
+      (error) => {
+        // Do something with request error
+        return Promise.reject(error);
+      }
+    );
 
     // this.apiClient.interceptors.response.use(
     //     this.handleSuccessResponse,
@@ -84,13 +85,15 @@ export default class APIBase {
 
   extract_error_message = (data) => {
     // Check if the data is an object and handle it accordingly
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
+    if (data && typeof data === "object" && !Array.isArray(data)) {
       // Handle the specific case where data contains a nested response object
-      if (data.response && typeof data.response === 'object') {
+      if (data.response && typeof data.response === "object") {
         const { code, invalid, message } = data.response;
-        let invalidMessages = '';
+        let invalidMessages = "";
         if (Array.isArray(invalid)) {
-          invalidMessages = invalid?.map(item => `ID: ${item.id}, Year: ${item.year}`).join('; ');
+          invalidMessages = invalid
+            ?.map((item) => `ID: ${item.id}, Year: ${item.year}`)
+            .join("; ");
         }
         return `${message}, Invalid: ${invalidMessages}`;
       }
@@ -98,14 +101,22 @@ export default class APIBase {
       return Object.entries(data)
         .map(([key, value]) => {
           // Assume value is an array of messages; join them if there are many
-          const messages = Array.isArray(value) ? value.join(', ') : value;
+          const messages = Array.isArray(value) ? value.join(", ") : value;
           return `${messages}`;
         })
-        .join('\n'); // Separate multiple errors with a semicolon and space
+        .join("\n"); // Separate multiple errors with a semicolon and space
     }
 
     // Default generic error message
-    return data?.error || data?.detail || data?.details || data?.message || data?.response?.message || "An unexpected error occurred";
+    return (
+      data ||
+      data?.error ||
+      data?.detail ||
+      data?.details ||
+      data?.message ||
+      data?.response?.message ||
+      "An unexpected error occurred"
+    );
   };
 
   handleErrorResponse = (error) => {
@@ -113,23 +124,20 @@ export default class APIBase {
 
     if (response) {
       const { status, data, config } = response;
-      const errorMessage = this.extract_error_message(data);  // Use the new function here
-      const token = Cookies.get('access_token')
+      const errorMessage = this.extract_error_message(data); // Use the new function here
+      const token = Cookies.get("access_token");
 
       console.error("Error status:", status, errorMessage);
       console.error("Error data:", data, token);
       console.error("Error config:", config);
 
       // Check if the response is a 401 with a specific token expiration message
-      if (
-        status === 401 &&
-        data?.code == "token_not_valid"
-      ) {
+      if (status === 401 && data?.code == "token_not_valid") {
         // Clear the token from local storage
-        localStorage.clear()
+        localStorage.clear();
         Object.keys(Cookies.get()).forEach((cookieName) => {
           Cookies.remove(cookieName);
-        })
+        });
 
         // Show an alert message and redirect the user to the login page
         Swal.fire({
@@ -149,18 +157,22 @@ export default class APIBase {
       // Check if the response is a 400 with Invalid session
       if (
         token &&
-        status === 400 &&
-        (data?.error === "Invalid Session!" || data?.detail === "Invalid Session")
+        status === 403 &&
+        data === "This tenant is inactive. Access denied."
       ) {
         // Clear the token from local storage
-        localStorage.clear()
+        localStorage.clear();
         Object.keys(Cookies.get()).forEach((cookieName) => {
           Cookies.remove(cookieName);
-        })
+        });
 
         // Show an alert message and redirect the user to the login page
-        Swal.fire("Invalid Session!", "Your Session Is Invalid, Please Login Again", "warning").then(() => {
-          window.location.href = "/login"; // Redirect to login page
+        Swal.fire(
+          "Access Denired!",
+          "This tenant is inactive. Access denied.",
+          "warning"
+        ).then(() => {
+          window.location.href = "/"; // Redirect to login page
         });
         return;
       }
@@ -169,16 +181,21 @@ export default class APIBase {
       if (
         token &&
         status === 403 &&
-        (data?.error === "You do not have permission to perform this action." || data?.detail === "You do not have permission to perform this action.")
+        (data?.error === "You do not have permission to perform this action." ||
+          data?.detail === "You do not have permission to perform this action.")
       ) {
         // Clear the token from local storage
-        localStorage.clear()
+        localStorage.clear();
         Object.keys(Cookies.get()).forEach((cookieName) => {
           Cookies.remove(cookieName);
-        })
+        });
 
         // Show an alert message and redirect the user to the login page
-        Swal.fire("No Permission!", "You do not have permission for this page", "warning").then(() => {
+        Swal.fire(
+          "No Permission!",
+          "You do not have permission for this page",
+          "warning"
+        ).then(() => {
           window.location.href = "/login"; // Redirect to login page
         });
         return;
@@ -187,7 +204,9 @@ export default class APIBase {
       // console.log('fndsfnd', data, status)
 
       // Handling errors based on the HTTP method used
-      if (['post', 'delete', 'patch', 'put'].includes(config.method.toLowerCase())) {
+      if (
+        ["post", "delete", "patch", "put"].includes(config.method.toLowerCase())
+      ) {
         switch (status) {
           case 404:
             toast.error(`Not Found: ${errorMessage}`);
@@ -278,7 +297,6 @@ export default class APIBase {
     return this.makeRequest("post", endpoint, data, headers);
   }
 
-
   put(endpoint = "", data, headers = {}) {
     if (this.config.tokenKey) headers = this.buildAuthHeader(this.getToken());
     return this.makeRequest("put", endpoint, data, headers);
@@ -331,7 +349,7 @@ export default class APIBase {
 
     return this.apiClient.get(fullEndpoint, {
       headers: headers,
-      responseType: 'blob', // 👈 Key part
+      responseType: "blob", // 👈 Key part
     });
   }
 
@@ -354,19 +372,21 @@ export default class APIBase {
       data,
       headers: headers,
       timeout: 0, // No timeout
-      onUploadProgress: onUploadProgress || function (progressEvent) {
-        // You can add default progress handling here if needed
-        const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        console.log(percentCompleted);
-      },
+      onUploadProgress:
+        onUploadProgress ||
+        function (progressEvent) {
+          // You can add default progress handling here if needed
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log(percentCompleted);
+        },
     });
   }
 
   // Methods for token management in local storage
   getToken() {
-    return Cookies.get('access_token');
+    return Cookies.get("access_token");
   }
 
   setToken(token) {

@@ -226,7 +226,7 @@ const Clients = () => {
                       Total Buy: ₹{item?.api_total_buy?.[0]}
                     </p>
                     <p style={{ color: "#D43131" }}>
-                      Outstandings: ₹{item?.api_total_buy?.[0]}
+                      Outstandings: ₹{item?.api_total_outstanding_amount?.[0]}
                     </p>
                   </div>
                 </div>

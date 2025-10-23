@@ -30,6 +30,17 @@ const WhatsappQR = () => {
     fetchQrCode();
   }, [tenantAPI]);
 
+  const whatsappLogout = async () => {
+    try {
+      const res = await tenantAPI.post("/store-owner/whatsapp-logout/");
+
+      console.log(res);
+      toast.success(res?.message);
+      seterror(null);
+      fetchQrCode();
+    } catch (error) {}
+  };
+
   if (loading) {
     return (
       <div className="loader">
@@ -40,7 +51,14 @@ const WhatsappQR = () => {
 
   return (
     <div className="whatsapp-qr">
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <div className="error">
+          <p>{error}</p>
+          <button className="red-cta" onClick={whatsappLogout}>
+            Disconnect
+          </button>
+        </div>
+      )}
       {qr_code && (
         <div className="qr-container">
           <p>Scan to connect Whatsapp</p>

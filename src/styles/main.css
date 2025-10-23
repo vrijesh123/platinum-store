@@ -839,12 +839,22 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  flex-direction: column;
   height: 80vh;
 }
 .whatsapp-qr .error {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+.whatsapp-qr .error p {
   color: #16A34A;
   font-size: 16px;
   text-transform: capitalize;
+}
+.whatsapp-qr .error .red-cta {
+  margin: 10px 0;
 }
 .whatsapp-qr .qr-container {
   display: flex;
