@@ -210,18 +210,42 @@ const ClientOrderHistory = () => {
   };
 
   const punchPayment = async () => {
+    const outstanding = Number(client?.api_total_outstanding_amount?.[0] || 0);
+    const paymentAmount = Number(amount || 0);
+
+    // Validation: prevent overpayment
+    if (paymentAmount > outstanding) {
+      toast.error(
+        `Payment cannot exceed outstanding amount of ₹${outstanding}`
+      );
+      return; // stop execution here
+    }
+
+    if (paymentAmount <= 0) {
+      toast.error("Please enter a valid payment amount");
+      return;
+    }
+
+    if (!paymentMode) {
+      toast.error("Please select a payment method");
+      return;
+    }
+
     try {
       await tenantAPI.post("/store-owner/client-payment/", {
         user: client?.user,
-        amount: amount,
+        amount: paymentAmount,
         payment_method: paymentMode,
       });
 
       setAmount("");
       setPaymentMode("");
       setOpenPunch(false);
+
+      //Refresh Data
       fetchPayments();
       fetchClient();
+      toast.success("Payment recorded successfully");
     } catch (error) {
       console.error("Error punching payment:", error);
     }
@@ -457,9 +481,11 @@ const ClientOrderHistory = () => {
           )}
 
           <div className="actions">
-            <button className="blue-cta" onClick={() => setOpenPunch(true)}>
-              Punch Payment
-            </button>
+            {client?.api_total_outstanding_amount?.[0] > 0 && (
+              <button className="blue-cta" onClick={() => setOpenPunch(true)}>
+                Punch Payment
+              </button>
+            )}
             {clientPayments?.length > 0 && (
               <button className="white-cta" onClick={shareStatement}>
                 {invoiceLoading ? (
@@ -510,7 +536,7 @@ const ClientOrderHistory = () => {
 
               <FormControl component="fieldset" sx={{ mb: 2 }}>
                 <FormLabel sx={{ fontWeight: 500, mb: 1 }}>
-                  Payment Mode *
+                  Payment Mode
                 </FormLabel>
                 <RadioGroup
                   row
