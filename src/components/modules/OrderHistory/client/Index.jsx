@@ -153,6 +153,7 @@ const ClientOrderHistory = () => {
       const res = await tenantAPI.patch(
         `/store-owner/order/?pk=${order?.id}&mark_accepted=true`
       );
+
       fetchPayments();
       fetchOrders();
       fetchClient();
@@ -165,8 +166,11 @@ const ClientOrderHistory = () => {
       const res = await tenantAPI.patch(
         `/store-owner/order/?pk=${order?.id}&mark_canceled=true`
       );
+
       setopenDrawer(false);
       toast.success("Order Cancelled!");
+      fetchOrders();
+      fetchClient();
     } catch (error) {}
   };
 

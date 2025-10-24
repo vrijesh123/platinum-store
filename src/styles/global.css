@@ -2244,7 +2244,7 @@ section {
     display: block;
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 40px;
     z-index: 1000;
   }
 }
@@ -2298,7 +2298,7 @@ section {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 20px 24px 0;
+  padding: 50px 24px 0;
   margin: 0 0 24px;
   background-color: #F7F8FA;
 }
@@ -2313,8 +2313,7 @@ section {
 }
 @media screen and (max-width: 768px) {
   .top-nav-container .top-nav {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 0 0 10px;
   }
 }
 .top-nav-container .top-nav .profile {

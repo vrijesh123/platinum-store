@@ -3,7 +3,8 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import { useTenantAPI } from "@/hooks/useTenantAPI";
 import { Call } from "@mui/icons-material";
 import { CircularProgress, SwipeableDrawer } from "@mui/material";
-import { PlusIcon } from "lucide-react";
+import { BellIcon, PlusIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -52,6 +53,7 @@ const Clients = () => {
   const [openMenu, setOpenMenu] = useState(null); // track which client's menu is open
 
   const [submitting, setSubmitting] = useState(false);
+  const [submittingId, setSubmittingId] = useState(null);
 
   const menuRef = useRef(null);
 
@@ -147,6 +149,21 @@ const Clients = () => {
     }
   };
 
+  const sendReminder = async (client) => {
+    setSubmittingId(client.id);
+    try {
+      const res = await tenantAPI.post(
+        `/store-owner/client/outstanding-reminder/?client_id=${client?.id}`
+      );
+
+      toast.success(res?.message);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSubmittingId(null);
+    }
+  };
+
   const handleEdit = async (values, resetForm) => {
     try {
       await tenantAPI.patch(`/store-owner/client/?pk=${values?.id}`, {
@@ -217,19 +234,21 @@ const Clients = () => {
                 key={item.id || i}
                 ref={isLast ? lastClientRef : null}
               >
-                <div className="left">
-                  <h6>{item?.name}</h6>
+                <Link href={`/order-history/${item?.user}`}>
+                  <div className="left">
+                    <h6>{item?.name}</h6>
 
-                  <div className="business-details">
-                    <p>Total Orders: {item?.api_total_orders?.[0]}</p>
-                    <p style={{ color: "#16A34A" }}>
-                      Total Buy: ₹{item?.api_total_buy?.[0]}
-                    </p>
-                    <p style={{ color: "#D43131" }}>
-                      Outstandings: ₹{item?.api_total_outstanding_amount?.[0]}
-                    </p>
+                    <div className="business-details">
+                      <p>Total Orders: {item?.api_total_orders?.[0]}</p>
+                      <p style={{ color: "#16A34A" }}>
+                        Total Buy: ₹{item?.api_total_buy?.[0]}
+                      </p>
+                      <p style={{ color: "#D43131" }}>
+                        Outstandings: ₹{item?.api_total_outstanding_amount?.[0]}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
 
                 <div className="actions">
                   <button
@@ -264,13 +283,23 @@ const Clients = () => {
 
                 <div className="right">
                   <button
-                    className="white-cta"
-                    onClick={() => router.push(`/order-history/${item?.user}`)}
+                    className="blue-cta"
+                    onClick={() => sendReminder(item)}
+                    disabled={submittingId === item.id}
                   >
-                    Order History
+                    {submittingId === item.id ? (
+                      <div className="loading">
+                        <CircularProgress size={20} />
+                      </div>
+                    ) : (
+                      <>
+                        <BellIcon />
+                        Remind
+                      </>
+                    )}
                   </button>
                   <a href={`tel:${item?.phone_number}`}>
-                    <button className="blue-cta">
+                    <button className="black-cta">
                       <Call /> Call
                     </button>
                   </a>

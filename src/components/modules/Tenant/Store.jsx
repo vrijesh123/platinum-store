@@ -282,8 +282,9 @@ const Store = () => {
                     <li key={item?.id}>{item?.product?.name}</li>
                   ))}
                 </ul>
-
-                <button className="white-cta">View Cart</button>
+                <Link href={"/tenant/cart"}>
+                  <button className="white-cta">View Cart</button>
+                </Link>
               </div>
             )}
           </div>

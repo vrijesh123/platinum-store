@@ -316,6 +316,31 @@ $green: #16A34A;
     }
 }
 
+.qty-cta {
+    background-color: #E9ECFF;
+    color: $blue;
+    border: 1px solid $blue;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    @media (max-width: 900px) {
+        font-size: 14px;
+    }
+
+    &:disabled {
+        background-color: #b4b4b4;
+    }
+}
+
 .switch {
     position: relative;
     display: inline-block;
@@ -467,6 +492,7 @@ $green: #16A34A;
     border-radius: 5px;
     padding: 15px;
     position: relative;
+    background-color: #FFFF;
 
     .details {
         display: flex;
@@ -528,6 +554,7 @@ $green: #16A34A;
     border-radius: 5px;
     padding: 15px;
     position: relative;
+    background-color: #FFFF;
 
     .date {
         position: absolute;
@@ -580,6 +607,7 @@ $green: #16A34A;
     gap: 20px;
     justify-content: space-between;
     padding: 5px 0 10px;
+    background-color: #FFFF;
 
     .product-detail {
         flex: 1;
@@ -643,11 +671,16 @@ $green: #16A34A;
     padding: 20px;
     border-radius: 5px;
     position: relative;
+    background-color: #FFFF;
 
     @media (max-width: 900px) {
         flex-direction: column;
         gap: 16px;
         padding: 10px;
+    }
+
+    a {
+        color: $text-color;
     }
 
     .left {
@@ -672,7 +705,7 @@ $green: #16A34A;
             flex-wrap: wrap;
 
             @media (max-width: 900px) {
-                gap: 5px;
+                gap: 0px;
                 margin-top: 5px;
             }
 
@@ -739,7 +772,7 @@ $green: #16A34A;
     .right {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
         flex: 1;
 
         @media (max-width: 900px) {
@@ -750,12 +783,16 @@ $green: #16A34A;
         a {
             flex: 1;
             width: 100%;
+            // height: 100%;
+        }
+
+        button {
+            padding: 10px 15px;
         }
 
         .white-cta {
             border-color: $border-color;
             color: $text-color;
-            background-color: #F7F8FA;
         }
     }
 }
@@ -821,6 +858,7 @@ $green: #16A34A;
     display: flex;
     align-items: flex-end;
     gap: 20px;
+    background-color: #FFFF;
 
     .product {
         flex: 1.5;
@@ -884,6 +922,7 @@ $green: #16A34A;
     flex-direction: column;
     gap: 10px;
     position: relative;
+    background-color: #FFFF;
 
     .cart-details {
         p {

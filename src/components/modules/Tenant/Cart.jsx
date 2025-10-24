@@ -217,7 +217,7 @@ const Cart = () => {
 
                       <div className="qty">
                         <button
-                          className="red-cta"
+                          className="qty-cta"
                           onClick={() => handleQuantityChange(item.id, -1)}
                         >
                           <Remove />
@@ -237,7 +237,7 @@ const Cart = () => {
                           }
                         />
                         <button
-                          className="blue-cta"
+                          className="qty-cta"
                           onClick={() => handleQuantityChange(item.id, +1)}
                         >
                           <PlusIcon />

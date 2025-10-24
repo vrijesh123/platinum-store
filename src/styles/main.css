@@ -277,6 +277,31 @@
   }
 }
 
+.qty-cta {
+  background-color: #E9ECFF;
+  color: #2142FF;
+  border: 1px solid #2142FF;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .qty-cta {
+    font-size: 14px;
+  }
+}
+.qty-cta:disabled {
+  background-color: #b4b4b4;
+}
+
 .switch {
   position: relative;
   display: inline-block;
@@ -402,6 +427,7 @@
   border-radius: 5px;
   padding: 15px;
   position: relative;
+  background-color: white;
 }
 .out-standing-widget .details {
   display: flex;
@@ -453,6 +479,7 @@
   border-radius: 5px;
   padding: 15px;
   position: relative;
+  background-color: white;
 }
 .order-widget .date {
   position: absolute;
@@ -498,6 +525,7 @@
   gap: 20px;
   justify-content: space-between;
   padding: 5px 0 10px;
+  background-color: white;
 }
 .product-detail-widget .product-detail {
   flex: 1;
@@ -558,6 +586,7 @@
   padding: 20px;
   border-radius: 5px;
   position: relative;
+  background-color: white;
 }
 @media (max-width: 900px) {
   .client-widget {
@@ -565,6 +594,9 @@
     gap: 16px;
     padding: 10px;
   }
+}
+.client-widget a {
+  color: #121212;
 }
 .client-widget .left {
   flex: 1;
@@ -587,7 +619,7 @@
 }
 @media (max-width: 900px) {
   .client-widget .left .business-details {
-    gap: 5px;
+    gap: 0px;
     margin-top: 5px;
   }
 }
@@ -647,7 +679,7 @@
 .client-widget .right {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   flex: 1;
 }
 @media (max-width: 900px) {
@@ -660,10 +692,12 @@
   flex: 1;
   width: 100%;
 }
+.client-widget .right button {
+  padding: 10px 15px;
+}
 .client-widget .right .white-cta {
   border-color: #E6E6E6;
   color: #121212;
-  background-color: #F7F8FA;
 }
 
 .product-widget {
@@ -720,6 +754,7 @@
   display: flex;
   align-items: flex-end;
   gap: 20px;
+  background-color: white;
 }
 .product-store-widget .product {
   flex: 1.5;
@@ -775,6 +810,7 @@
   flex-direction: column;
   gap: 10px;
   position: relative;
+  background-color: white;
 }
 .cart-widget .cart-details p {
   font-size: 18px;

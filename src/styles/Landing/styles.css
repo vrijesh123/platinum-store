@@ -730,6 +730,7 @@
   padding: 10px;
   flex: 1;
   display: block;
+  background-color: #FFF;
 }
 .dashboard-container .statistics .stats .title {
   display: flex;
@@ -1111,8 +1112,13 @@
 .clients-container .clients {
   margin: 30px 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+}
+@media screen and (max-width: 1400px) {
+  .clients-container .clients {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media screen and (max-width: 900px) {
   .clients-container .clients {
