@@ -1062,6 +1062,11 @@ $green: #16A34A;
     .recent-orders {
         margin-top: 30px;
 
+        .loading {
+            text-align: center;
+            margin: 100px 0;
+        }
+
         .orders {
             display: grid;
             gap: 10px;

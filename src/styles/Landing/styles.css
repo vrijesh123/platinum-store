@@ -98,8 +98,7 @@
     border-radius: 5px;
     width: 40px;
     height: 40px;
-    -o-object-fit: cover;
-       object-fit: cover;
+    object-fit: cover;
   }
   .nav-container .nav-links-container .nav-links .nav-item .dropdown-menu .category p {
     font-size: 14px;
@@ -674,8 +673,7 @@
 }
 .login-container .right-container .img-container img,
 .admin-login .right-container .img-container img {
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 .login-container .right-container .content,
 .admin-login .right-container .content {
@@ -737,7 +735,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: -moz-fit-content;
   max-width: fit-content;
   margin: 0;
 }
@@ -905,6 +902,10 @@
 }
 .dashboard-container .recent-orders {
   margin-top: 30px;
+}
+.dashboard-container .recent-orders .loading {
+  text-align: center;
+  margin: 100px 0;
 }
 .dashboard-container .recent-orders .orders {
   display: grid;
@@ -1096,8 +1097,7 @@
 .clients-container .search-container-wrapper .search-container .icon-container img {
   width: 100%;
   height: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 .clients-container .search-container-wrapper .search-container .search-input {
   flex: 1;
@@ -1172,7 +1172,6 @@
   margin-top: 10px;
   border-radius: 5px;
   padding: 3px 10px;
-  max-width: -moz-fit-content;
   max-width: fit-content;
 }
 .order-history-container .access .text .status p {
@@ -1307,8 +1306,7 @@
 .products-container .search-container-wrapper .search-container .icon-container img {
   width: 100%;
   height: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 .products-container .search-container-wrapper .search-container .search-input {
   flex: 1;
@@ -1581,4 +1579,4 @@
 }
 .summary-dialog .total .total-price strong {
   color: #16A34A;
-}/*# sourceMappingURL=styles.css.map */
+}

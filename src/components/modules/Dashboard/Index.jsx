@@ -43,6 +43,7 @@ export default function Dashboard() {
   };
 
   const fetchRecentOrders = async () => {
+    setloading(true);
     try {
       const res = await tenantAPI.get(
         "/store-owner/order/?depth=5&nested=True&order_by=-created_at"
@@ -51,7 +52,10 @@ export default function Dashboard() {
       if (res) {
         setRecent_orders(res);
       }
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setloading(false);
+    }
   };
 
   useEffect(() => {
@@ -305,53 +309,61 @@ export default function Dashboard() {
             )}
           </div>
 
-          {recent_orders?.results?.length > 0 ? (
-            <div className="orders">
-              {recent_orders?.results?.map((item, i) => (
-                <div className="order-widget" key={i}>
-                  <h6 className="line-clamp-1">
-                    {item?.api_client?.[0]?.fields?.name ?? "-"}
-                  </h6>
-
-                  <div className="order-details">
-                    <div className="detail">
-                      <p className="price">₹{item?.total_price}</p>
-                      <p>{item?.api_order_item?.length} items</p>
-                    </div>
-
-                    <div
-                      className="blue-cta"
-                      onClick={() => {
-                        setselectedOrder(item);
-                        setopenDrawer(true);
-                      }}
-                    >
-                      View Order
-                    </div>
-                  </div>
-
-                  <div className="date">
-                    <p
-                      style={{
-                        color:
-                          item?.status === "accepted"
-                            ? "#16A34A"
-                            : item?.status === "pending"
-                            ? "#FF7A06"
-                            : "#D43131",
-                      }}
-                    >
-                      {item?.status}
-                    </p>
-                    <p>{moment(item?.created_at).format("DD MMM YYYY")}</p>
-                  </div>
-                </div>
-              ))}
+          {loading ? (
+            <div className="loading">
+              <CircularProgress />
             </div>
           ) : (
-            <div style={{ margin: "100px", textAlign: "center" }}>
-              <p>No Recent Orders Available</p>
-            </div>
+            <>
+              {recent_orders?.results?.length > 0 ? (
+                <div className="orders">
+                  {recent_orders?.results?.map((item, i) => (
+                    <div className="order-widget" key={i}>
+                      <h6 className="line-clamp-1">
+                        {item?.api_client?.[0]?.fields?.name ?? "-"}
+                      </h6>
+
+                      <div className="order-details">
+                        <div className="detail">
+                          <p className="price">₹{item?.total_price}</p>
+                          <p>{item?.api_order_item?.length} items</p>
+                        </div>
+
+                        <div
+                          className="blue-cta"
+                          onClick={() => {
+                            setselectedOrder(item);
+                            setopenDrawer(true);
+                          }}
+                        >
+                          View Order
+                        </div>
+                      </div>
+
+                      <div className="date">
+                        <p
+                          style={{
+                            color:
+                              item?.status === "accepted"
+                                ? "#16A34A"
+                                : item?.status === "pending"
+                                ? "#FF7A06"
+                                : "#D43131",
+                          }}
+                        >
+                          {item?.status}
+                        </p>
+                        <p>{moment(item?.created_at).format("DD MMM YYYY")}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ margin: "100px", textAlign: "center" }}>
+                  <p>No Recent Orders Available</p>
+                </div>
+              )}
+            </>
           )}
         </div>
 

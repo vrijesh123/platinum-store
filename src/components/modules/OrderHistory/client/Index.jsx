@@ -316,13 +316,14 @@ const ClientOrderHistory = () => {
 
   return (
     <div className="container tenant-container">
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <button
           style={{
             border: "none",
             background: "none",
             padding: 0,
             cursor: "pointer",
+            marginTop: "3px",
           }}
           onClick={() => router.back()}
           className="back-btn"
@@ -424,46 +425,6 @@ const ClientOrderHistory = () => {
                             )}
                           </p>
                         </div>
-
-                        {/* <PDFDownloadLink
-                          document={
-                            <ReceiptPDF
-                              data={{
-                                id: `PAYMENT-0${item?.id}`,
-                                date: `${moment(item?.created_at).format(
-                                  "DD MMM YYYY"
-                                )}`,
-                                paymentMode: `${
-                                  item?.payment_method || ""
-                                }`.toUpperCase(),
-                                billedTo: {
-                                  name: `${client?.name}`,
-                                  phone: `+91 ${client?.phone_number}`,
-                                },
-                                from: {
-                                  name: "Panda, Inc",
-                                  address:
-                                    "Business address, City, State, IN – 000 000",
-                                },
-                                paymentReceived: Number(item?.amount) || 0,
-                                totalAmount:
-                                  Number(client?.api_total_order_amount?.[0]) ||
-                                  0,
-                                balance:
-                                  Number(
-                                    client?.api_total_outstanding_amount?.[0]
-                                  ) || 0,
-                              }}
-                            />
-                          }
-                          fileName={`receipt-${item.id}.pdf`}
-                        >
-                          {({ loading }) => (
-                            <button className="white-cta">
-                              {loading ? "Generating PDF..." : "Receipt"}
-                            </button>
-                          )}
-                        </PDFDownloadLink> */}
 
                         <button
                           className="white-cta"
