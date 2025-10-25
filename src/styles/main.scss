@@ -672,6 +672,7 @@ $green: #16A34A;
     border-radius: 5px;
     position: relative;
     background-color: #FFFF;
+    cursor: pointer;
 
     @media (max-width: 900px) {
         flex-direction: column;
@@ -789,6 +790,7 @@ $green: #16A34A;
         button {
             padding: 10px 15px;
         }
+
 
         .white-cta {
             border-color: $border-color;

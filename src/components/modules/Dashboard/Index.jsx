@@ -31,6 +31,7 @@ export default function Dashboard() {
 
   const [invoiceLoading, setinvoiceLoading] = useState(false);
   const [outstandingLoading, setOutstandingLoading] = useState(false);
+  const [submittingId, setSubmittingId] = useState(null);
 
   const fetchMatrix = async () => {
     try {
@@ -129,7 +130,7 @@ export default function Dashboard() {
   };
 
   const sendReminder = async (client) => {
-    setOutstandingLoading(true);
+    setSubmittingId(client.id);
     try {
       const res = await tenantAPI.post(
         `/store-owner/client/outstanding-reminder/?client_id=${client?.id}`
@@ -139,11 +140,9 @@ export default function Dashboard() {
     } catch (error) {
       console.log(error);
     } finally {
-      setOutstandingLoading(false);
+      setSubmittingId(null);
     }
   };
-
-  console.log("Dashboard", user);
 
   return (
     <div className="container tenant-container">
@@ -276,8 +275,9 @@ export default function Dashboard() {
                     <button
                       className="white-cta"
                       onClick={() => sendReminder(item)}
+                      disabled={submittingId === item.id}
                     >
-                      {outstandingLoading ? (
+                      {submittingId === item.id ? (
                         <div className="loading">
                           <CircularProgress size={20} />
                         </div>
